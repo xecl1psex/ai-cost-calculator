@@ -3,388 +3,802 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Cost Calculator — калькулятор стоимости запросов к ИИ</title>
-<meta name="description" content="Узнай, сколько стоит твой запрос к GPT-4.1, Claude, Gemini или DeepSeek. Цены обновляются автоматически каждый день.">
-<meta name="keywords" content="стоимость токенов, цена GPT-4, цена Claude, цена Gemini, калькулятор API, AI cost calculator">
-<meta name="theme-color" content="#08080c">
-
-<meta property="og:type" content="website">
-<meta property="og:title" content="AI Cost Calculator">
-<meta property="og:description" content="Узнай точную стоимость запроса к нейросетям за секунду.">
-<meta property="og:site_name" content="AI Cost Calculator">
-
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="AI Cost Calculator">
-<meta name="twitter:description" content="Калькулятор стоимости запросов к ИИ">
-
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧮</text></svg>">
-
+<title>AI Cost Calculator — стоимость запросов к нейросетям</title>
+<meta name="description" content="Калькулятор стоимости запросов к GPT-4.1, Claude, Gemini и DeepSeek. Цены обновляются автоматически каждый день. Рассчитай бюджет на API.">
+<meta name="theme-color" content="#fafafa" id="themeColor">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%235e6ad2'/><text x='50' y='68' font-family='system-ui' font-size='60' font-weight='700' text-anchor='middle' fill='white'>A</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
   :root {
-    --accent: #00ffa3; --accent2: #7c5cff;
-    --bg: #08080c; --card: rgba(255,255,255,0.04);
-    --border: rgba(255,255,255,0.08);
-    --text: #fff; --muted: #6b6b7b;
+    --bg: #fafafa;
+    --panel: #ffffff;
+    --panel-2: #f5f5f5;
+    --border: #eaeaea;
+    --border-strong: #d4d4d4;
+    --text: #111111;
+    --text-2: #666666;
+    --text-3: #999999;
+    --accent: #5e6ad2;
+    --accent-hover: #4c56b8;
+    --accent-bg: #eef0fb;
+    --hover: #f5f5f5;
+    --success: #16a34a;
+    --shadow: 0 1px 2px rgba(0,0,0,0.04);
   }
-  html { scroll-behavior: smooth; }
+
+  [data-theme="dark"] {
+    --bg: #0d0d0d;
+    --panel: #161616;
+    --panel-2: #1f1f1f;
+    --border: #262626;
+    --border-strong: #3a3a3a;
+    --text: #f5f5f5;
+    --text-2: #a0a0a0;
+    --text-3: #666666;
+    --accent: #7c87e0;
+    --accent-hover: #8f99e5;
+    --accent-bg: #1a1d35;
+    --hover: #1f1f1f;
+    --success: #4ade80;
+    --shadow: 0 1px 2px rgba(0,0,0,0.4);
+  }
+
+  html { -webkit-text-size-adjust: 100%; }
   body {
-    background: var(--bg); color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
-    padding: 14px; padding-bottom: 80px;
-    min-height: 100vh; position: relative; overflow-x: hidden;
-  }
-  body::before {
-    content: ''; position: fixed; top: -200px; left: 50%;
-    transform: translateX(-50%); width: 500px; height: 500px;
-    background: radial-gradient(circle, rgba(124,92,255,0.15) 0%, transparent 70%);
-    pointer-events: none; z-index: 0;
-  }
-  body::after {
-    content: ''; position: fixed; bottom: -300px; right: -100px;
-    width: 400px; height: 400px;
-    background: radial-gradient(circle, rgba(0,255,163,0.08) 0%, transparent 70%);
-    pointer-events: none; z-index: 0;
-  }
-  .container { position: relative; z-index: 1; max-width: 480px; margin: 0 auto; }
-
-  header {
-    display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 20px; padding: 10px 14px;
-    background: rgba(255,255,255,0.03);
-    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-    border: 1px solid var(--border); border-radius: 18px;
-  }
-  .logo { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; }
-  .logo-dot {
-    width: 7px; height: 7px; border-radius: 50%;
-    background: var(--accent); box-shadow: 0 0 12px var(--accent);
-    animation: pulse 2s infinite;
-  }
-  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
-  .lang { display: flex; background: rgba(0,0,0,0.4); border-radius: 10px; padding: 3px; gap: 2px; }
-  .lang button {
-    background: transparent; border: none; color: var(--muted);
-    padding: 5px 10px; border-radius: 8px; font-size: 11px; font-weight: 600; cursor: pointer;
-  }
-  .lang button.active { background: var(--accent); color: #000; }
-
-  .tabs {
-    display: flex; gap: 6px; margin-bottom: 16px;
-    background: rgba(0,0,0,0.3); border-radius: 14px; padding: 4px;
-    border: 1px solid var(--border);
-  }
-  .tab {
-    flex: 1; background: transparent; border: none; color: var(--muted);
-    padding: 10px 6px; border-radius: 10px; font-size: 12px; font-weight: 700;
-    cursor: pointer; transition: all 0.25s;
-    display: flex; flex-direction: column; align-items: center; gap: 3px;
-  }
-  .tab svg { width: 14px; height: 14px; }
-  .tab.active {
-    background: linear-gradient(135deg, rgba(0,255,163,0.15), rgba(124,92,255,0.15));
+    background: var(--bg);
     color: var(--text);
-    box-shadow: 0 0 20px rgba(0,255,163,0.1);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    padding: 16px;
+    padding-bottom: 48px;
+    min-height: 100vh;
+    font-feature-settings: 'cv02','cv03','cv04','cv11';
+    transition: background-color 0.2s, color 0.2s;
   }
-  .panel { display: none; animation: fadeIn 0.3s; }
-  .panel.active { display: block; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
+  .num { font-family: 'JetBrains Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+
+  .container { max-width: 480px; margin: 0 auto; }
+
+  /* ============ HEADER ============ */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 0 20px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 20px;
+    gap: 8px;
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    flex-shrink: 0;
+  }
+  .logo-mark {
+    width: 22px;
+    height: 22px;
+    background: var(--accent);
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: 700;
+    font-size: 12px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .header-controls {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .icon-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-2);
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.12s;
+    padding: 0;
+    font-family: inherit;
+  }
+  .icon-btn:hover { background: var(--hover); color: var(--text); border-color: var(--border-strong); }
+  .icon-btn svg { width: 14px; height: 14px; }
+
+  .lang-switch {
+    display: flex;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    height: 30px;
+    padding: 2px;
+    gap: 1px;
+  }
+  .lang-switch button {
+    background: transparent;
+    border: none;
+    color: var(--text-3);
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 0 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.12s;
+  }
+  .lang-switch button.active {
+    background: var(--accent);
+    color: #fff;
+  }
+  .lang-switch button:not(.active):hover { color: var(--text-2); }
+
+  /* ============ HERO ============ */
+  .hero {
+    padding: 8px 0 24px;
+    margin-bottom: 8px;
+  }
+  .hero h1 {
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+    margin-bottom: 8px;
+  }
+  .hero p {
+    font-size: 14px;
+    color: var(--text-2);
+    line-height: 1.6;
+  }
+
+  /* ============ TABS ============ */
+  .tabs {
+    display: flex;
+    gap: 2px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab {
+    background: transparent;
+    border: none;
+    color: var(--text-2);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 10px 12px 12px;
+    cursor: pointer;
+    white-space: nowrap;
+    position: relative;
+    transition: color 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .tab svg { width: 14px; height: 14px; opacity: 0.7; }
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--text); font-weight: 600; }
+  .tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--accent);
+  }
+
+  /* ============ PANELS ============ */
+  .panel { display: none; }
+  .panel.active { display: block; animation: panelIn 0.15s ease-out; }
+  @keyframes panelIn { from { opacity: 0; } to { opacity: 1; } }
+
+  /* ============ CARDS ============ */
   .card {
-    background: var(--card);
-    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-    border: 1px solid var(--border); border-radius: 18px;
-    padding: 16px; margin-bottom: 10px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 12px;
+    transition: background-color 0.2s, border-color 0.2s;
   }
-  .field-label {
-    display: flex; align-items: center; gap: 8px;
-    font-size: 11px; font-weight: 700; color: var(--muted);
-    text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;
+  .card-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-2);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 14px;
   }
-  .field-label svg { width: 13px; height: 13px; }
-  .field-label .hint { margin-left: auto; text-transform: none; letter-spacing: 0; font-weight: 600; font-size: 11px; color: var(--accent); }
+  .card-title svg { width: 13px; height: 13px; }
+  .card-title-hint {
+    margin-left: auto;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-3);
+    text-transform: none;
+    letter-spacing: 0;
+    font-family: 'JetBrains Mono', monospace;
+  }
 
+  /* ============ MODEL GRID ============ */
+  .model-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+  }
+  .model-chip {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 10px 12px;
+    cursor: pointer;
+    transition: all 0.12s;
+    text-align: left;
+  }
+  .model-chip:hover { border-color: var(--border-strong); background: var(--hover); }
+  .model-chip.active {
+    border-color: var(--accent);
+    background: var(--accent-bg);
+    box-shadow: 0 0 0 3px rgba(94, 106, 210, 0.1);
+  }
+  [data-theme="dark"] .model-chip.active {
+    box-shadow: 0 0 0 3px rgba(124, 135, 224, 0.15);
+  }
+  .model-name {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 2px;
+    color: var(--text);
+  }
+  .model-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .model-price {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-3);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ============ PRESETS ============ */
   .presets {
-    display: flex; gap: 6px; overflow-x: auto;
-    margin: 0 -16px 14px; padding: 0 16px 4px;
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+    margin: 0 -16px 14px;
+    padding: 0 16px 4px;
     scrollbar-width: none;
   }
   .presets::-webkit-scrollbar { display: none; }
   .preset {
-    flex-shrink: 0; background: rgba(0,0,0,0.3);
-    border: 1px solid var(--border); border-radius: 100px;
-    padding: 7px 12px; font-size: 12px; font-weight: 600;
-    color: var(--text); cursor: pointer; white-space: nowrap; transition: all 0.2s;
-  }
-  .preset:active { transform: scale(0.95); }
-  .preset.active { border-color: var(--accent); background: rgba(0,255,163,0.1); }
-
-  .model-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 7px; }
-  .model-chip {
-    background: rgba(0,0,0,0.3); border: 1px solid var(--border);
-    border-radius: 13px; padding: 10px; cursor: pointer; transition: all 0.2s; text-align: left;
-  }
-  .model-chip:active { transform: scale(0.97); }
-  .model-chip.active {
-    border-color: var(--accent); background: rgba(0,255,163,0.06);
-    box-shadow: 0 0 20px rgba(0,255,163,0.1);
-  }
-  .model-chip .dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 5px; vertical-align: middle; }
-  .model-name { font-size: 11px; font-weight: 700; display: block; margin-bottom: 3px; }
-  .model-price { font-size: 10px; color: var(--muted); font-variant-numeric: tabular-nums; }
-
-  input[type="number"], input[type="text"], textarea {
-    width: 100%; background: rgba(0,0,0,0.4);
-    border: 1px solid var(--border); color: var(--text);
-    padding: 13px; border-radius: 13px;
-    font-size: 17px; font-weight: 700;
-    font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 12px;
+    font-weight: 500;
     font-family: inherit;
-    transition: border-color 0.2s;
+    color: var(--text-2);
+    cursor: pointer;
+    transition: all 0.12s;
+    white-space: nowrap;
   }
-  input[type="number"]:focus, input[type="text"]:focus, textarea:focus { outline: none; border-color: var(--accent); }
+  .preset:hover { border-color: var(--border-strong); color: var(--text); }
+  .preset.active {
+    border-color: var(--accent);
+    background: var(--accent-bg);
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  /* ============ INPUTS ============ */
+  .input-group { margin-bottom: 14px; }
+  .input-group:last-child { margin-bottom: 0; }
+  .input-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-2);
+    margin-bottom: 6px;
+  }
+  .input-label .label-unit {
+    font-size: 11px;
+    color: var(--text-3);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .input-wrap { position: relative; }
+  input[type="number"], input[type="text"], textarea {
+    width: 100%;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 12px;
+    border-radius: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 15px;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    transition: border-color 0.12s, box-shadow 0.12s, background-color 0.2s;
+    -moz-appearance: textfield;
+  }
+  input[type="number"]:focus, input[type="text"]:focus, textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(94, 106, 210, 0.12);
+  }
+  [data-theme="dark"] input:focus,
+  [data-theme="dark"] textarea:focus {
+    box-shadow: 0 0 0 3px rgba(124, 135, 224, 0.18);
+  }
   input[type="number"]::-webkit-outer-spin-button,
   input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-  input[type="number"] { -moz-appearance: textfield; }
-  textarea { font-size: 14px; font-weight: 500; min-height: 100px; resize: vertical; line-height: 1.5; }
-
-  .input-wrap { position: relative; }
-  .input-unit {
-    position: absolute; right: 13px; top: 50%;
-    transform: translateY(-50%); font-size: 10px;
-    color: var(--muted); font-weight: 700; pointer-events: none;
-    letter-spacing: 0.5px;
+  textarea {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 1.6;
+    min-height: 120px;
+    resize: vertical;
   }
 
   input[type="range"] {
-    -webkit-appearance: none; appearance: none;
-    width: 100%; height: 4px; border-radius: 2px;
-    background: rgba(255,255,255,0.08); outline: none; margin: 6px 0 2px;
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--border);
+    outline: none;
+    margin: 8px 0 4px;
   }
   input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none; appearance: none;
-    width: 18px; height: 18px; border-radius: 50%;
-    background: var(--accent); box-shadow: 0 0 12px rgba(0,255,163,0.5);
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--panel);
+    border: 2px solid var(--accent);
     cursor: pointer;
   }
   input[type="range"]::-moz-range-thumb {
-    width: 18px; height: 18px; border-radius: 50%;
-    background: var(--accent); border: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--panel);
+    border: 2px solid var(--accent);
+    cursor: pointer;
   }
   .range-scale {
-    display: flex; justify-content: space-between;
-    font-size: 10px; color: var(--muted);
-    font-variant-numeric: tabular-nums;
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--text-3);
+    font-family: 'JetBrains Mono', monospace;
   }
 
+  /* ============ RESULT ============ */
   .result {
-    background: linear-gradient(135deg, rgba(0,255,163,0.08) 0%, rgba(124,92,255,0.08) 100%);
-    border: 1px solid rgba(0,255,163,0.2);
-    border-radius: 18px; padding: 20px 16px;
-    text-align: center; margin-bottom: 10px;
-    position: relative; overflow: hidden;
-  }
-  .result::before {
-    content: ''; position: absolute; top: -50%; left: 50%;
-    transform: translateX(-50%); width: 200px; height: 200px;
-    background: radial-gradient(circle, rgba(0,255,163,0.15) 0%, transparent 70%);
-    pointer-events: none;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 12px;
   }
   .result-label {
-    font-size: 10px; color: var(--muted); text-transform: uppercase;
-    letter-spacing: 1px; font-weight: 700; margin-bottom: 8px; position: relative;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-2);
+    margin-bottom: 10px;
   }
   .result-value {
-    font-size: 40px; font-weight: 800; line-height: 1;
-    letter-spacing: -1.5px;
-    background: linear-gradient(135deg, #fff 0%, var(--accent) 100%);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    background-clip: text; margin-bottom: 5px;
-    position: relative; font-variant-numeric: tabular-nums;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 34px;
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+    color: var(--text);
+    margin-bottom: 6px;
   }
-  .result-sub { font-size: 12px; color: var(--muted); margin-bottom: 14px; position: relative; }
+  .result-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--text-3);
+    margin-bottom: 4px;
+  }
   .result-year {
-    font-size: 11px; color: var(--accent); position: relative;
-    font-weight: 600; margin-bottom: 14px;
+    font-size: 12px;
+    color: var(--text-2);
+    margin-bottom: 16px;
   }
+  .result-year b { font-family: 'JetBrains Mono', monospace; color: var(--text); font-weight: 600; }
 
-  .compare-bar { height: 6px; border-radius: 3px; overflow: hidden; background: rgba(0,0,0,0.4); display: flex; margin-bottom: 6px; position: relative; }
-  .compare-seg { height: 100%; transition: width 0.4s cubic-bezier(0.4,0,0.2,1); }
-  .compare-seg.in { background: linear-gradient(90deg, var(--accent), #00c98a); }
-  .compare-seg.out { background: linear-gradient(90deg, var(--accent2), #a58aff); }
-  .compare-legend {
-    display: flex; justify-content: space-between;
-    font-size: 10px; color: var(--muted);
-    font-variant-numeric: tabular-nums; position: relative;
+  .compare-bar {
+    height: 6px;
+    border-radius: 3px;
+    overflow: hidden;
+    background: var(--border);
+    display: flex;
+    margin-bottom: 8px;
   }
-  .compare-legend b { color: var(--text); font-weight: 700; }
-  .legend-item { display: flex; align-items: center; gap: 5px; }
+  .compare-seg { height: 100%; transition: width 0.3s ease; }
+  .compare-seg.in { background: var(--accent); }
+  .compare-seg.out { background: var(--accent); opacity: 0.35; }
+
+  .compare-legend {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--text-2);
+  }
+  .compare-legend b { font-family: 'JetBrains Mono', monospace; color: var(--text); font-weight: 600; }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
   .legend-dot { width: 6px; height: 6px; border-radius: 50%; }
 
-  .everyday {
-    background: var(--card); border: 1px solid var(--border);
-    border-radius: 16px; padding: 14px; margin-bottom: 10px;
-    display: flex; align-items: center; gap: 12px;
-  }
-  .everyday-icon { font-size: 28px; flex-shrink: 0; }
-  .everyday-text { font-size: 13px; line-height: 1.5; color: var(--muted); }
-  .everyday-text b { color: var(--text); font-weight: 700; }
-
-  .monthly {
-    background: var(--card); border: 1px solid var(--border);
-    border-radius: 16px; padding: 14px; margin-bottom: 10px;
-  }
-  .monthly-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-  .monthly-title { font-size: 11px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
-  .monthly-value { font-size: 20px; font-weight: 800; letter-spacing: -0.5px; font-variant-numeric: tabular-nums; }
-  .monthly-value span { font-size: 11px; color: var(--muted); font-weight: 600; }
-
+  /* ============ BUTTON ============ */
   .btn {
-    width: 100%; background: linear-gradient(135deg, var(--accent) 0%, #00c98a 100%);
-    color: #000; border: none; padding: 15px;
-    border-radius: 14px; font-size: 14px; font-weight: 800;
-    cursor: pointer; margin-bottom: 10px;
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-    transition: all 0.2s;
-    box-shadow: 0 8px 24px rgba(0,255,163,0.2);
+    width: 100%;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 11px 16px;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.12s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 12px;
   }
-  .btn:active { transform: scale(0.98); }
-  .btn.copied { background: linear-gradient(135deg, #fff, #e0e0e0); }
+  .btn:hover { background: var(--accent-hover); }
+  .btn:active { transform: translateY(1px); }
+  .btn.copied { background: var(--success); }
+  .btn svg { width: 14px; height: 14px; }
 
-  .cmp-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  /* ============ HINT ============ */
+  .hint-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 13px;
+    color: var(--text-2);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    line-height: 1.5;
+  }
+  .hint-card b { color: var(--text); font-weight: 600; font-family: 'JetBrains Mono', monospace; }
+  .hint-icon { width: 20px; height: 20px; color: var(--text-3); flex-shrink: 0; }
+
+  /* ============ MONTHLY ============ */
+  .monthly-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .monthly-title { font-size: 12px; color: var(--text-2); font-weight: 500; }
+  .monthly-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+  .monthly-value span { font-size: 12px; color: var(--text-3); font-weight: 500; }
+
+  /* ============ COMPARE TABLE ============ */
+  .cmp-table { width: 100%; border-collapse: collapse; font-size: 13px; }
   .cmp-table th {
-    text-align: left; padding: 8px 4px;
-    font-size: 10px; color: var(--muted); font-weight: 700;
-    text-transform: uppercase; letter-spacing: 0.5px;
+    text-align: left;
+    padding: 8px 6px;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
     border-bottom: 1px solid var(--border);
   }
+  .cmp-table th:last-child { text-align: right; }
   .cmp-table td {
-    padding: 10px 4px; border-bottom: 1px solid rgba(255,255,255,0.04);
-    font-variant-numeric: tabular-nums;
+    padding: 10px 6px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
   }
   .cmp-table tr:last-child td { border-bottom: none; }
-  .cmp-table .rank { font-weight: 800; color: var(--muted); width: 22px; }
-  .cmp-table .best { color: var(--accent); font-weight: 800; }
-  .cmp-table .model-cell { display: flex; align-items: center; gap: 6px; font-weight: 600; }
-  .cmp-table .model-cell .dot { width: 6px; height: 6px; border-radius: 50%; }
-
-  .faq-item {
-    background: var(--card); border: 1px solid var(--border);
-    border-radius: 14px; padding: 14px; margin-bottom: 7px; cursor: pointer;
+  .cmp-table .rank {
+    width: 24px;
+    color: var(--text-3);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
   }
-  .faq-q { display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 700; }
-  .faq-toggle { color: var(--muted); font-size: 18px; transition: transform 0.3s; line-height: 1; }
+  .cmp-table td:last-child {
+    text-align: right;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500;
+    font-size: 13px;
+  }
+  .cmp-table .best { color: var(--accent); font-weight: 600; }
+  .cmp-table .model-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+  }
+  .cmp-table .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+  /* ============ COUNTERS ============ */
+  .counters {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .counter {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px;
+    text-align: center;
+  }
+  .counter-label {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+  }
+  .counter-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+  }
+  .counter.accent { border-color: var(--accent); background: var(--accent-bg); }
+  .counter.accent .counter-value { color: var(--accent); }
+
+  /* ============ FAQ ============ */
+  .faq-item {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 6px;
+    cursor: pointer;
+    overflow: hidden;
+    transition: border-color 0.12s;
+  }
+  .faq-item:hover { border-color: var(--border-strong); }
+  .faq-q {
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13px;
+    font-weight: 500;
+    gap: 12px;
+  }
+  .faq-toggle {
+    color: var(--text-3);
+    font-size: 16px;
+    font-weight: 400;
+    transition: transform 0.2s;
+    line-height: 1;
+    font-family: 'JetBrains Mono', monospace;
+    flex-shrink: 0;
+  }
   .faq-item.open .faq-toggle { transform: rotate(45deg); color: var(--accent); }
   .faq-a {
-    max-height: 0; overflow: hidden;
-    transition: max-height 0.3s ease, margin-top 0.3s;
-    font-size: 12px; color: var(--muted); line-height: 1.6;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.25s ease, padding 0.2s ease;
+    font-size: 13px;
+    color: var(--text-2);
+    line-height: 1.65;
+    padding: 0 16px;
   }
-  .faq-item.open .faq-a { max-height: 220px; margin-top: 10px; }
+  .faq-item.open .faq-a { max-height: 300px; padding: 0 16px 16px; }
+
+  /* ============ CONTENT SECTIONS ============ */
+  .section-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-2);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 32px 0 12px;
+  }
+  .content-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 12px;
+  }
+  .content-card h3 {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    letter-spacing: -0.01em;
+  }
+  .content-card p {
+    font-size: 13px;
+    color: var(--text-2);
+    line-height: 1.7;
+    margin-bottom: 10px;
+  }
+  .content-card p:last-child { margin-bottom: 0; }
+  .content-card ul {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0 0;
+  }
+  .content-card li {
+    font-size: 13px;
+    color: var(--text-2);
+    line-height: 1.6;
+    padding: 6px 0 6px 20px;
+    position: relative;
+  }
+  .content-card li::before {
+    content: '';
+    position: absolute;
+    left: 4px;
+    top: 14px;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+  .content-card code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    background: var(--bg);
+    padding: 1px 5px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+
+  .use-cases {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .use-case {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+  .use-case-title {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: var(--text);
+  }
+  .use-case-desc {
+    font-size: 12px;
+    color: var(--text-2);
+    line-height: 1.55;
+  }
 
   footer {
-    text-align: center; font-size: 11px; color: var(--muted);
-    margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border);
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-3);
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
   }
-  footer a { color: var(--muted); text-decoration: none; }
+  footer a { color: var(--text-3); text-decoration: none; }
+  footer a:hover { color: var(--text-2); }
 
-  .section-title {
-    font-size: 12px; font-weight: 700; color: var(--muted);
-    text-transform: uppercase; letter-spacing: 0.5px;
-    margin: 16px 0 10px; padding-left: 4px;
-  }
-
-  .updated-badge {
-    display: inline-flex; align-items: center; gap: 5px;
-    font-size: 10px; color: var(--muted); font-weight: 600;
-    background: rgba(0,0,0,0.3); padding: 4px 8px;
-    border-radius: 100px; border: 1px solid var(--border);
-  }
-  .updated-badge .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
-
-  /* ============= DESKTOP ============= */
+  /* ============ DESKTOP ============ */
   @media (min-width: 900px) {
-    body { padding: 24px; padding-bottom: 40px; }
-    .container { max-width: 1180px; }
+    body { padding: 32px; padding-bottom: 32px; }
+    .container { max-width: 1160px; }
 
-    header { padding: 14px 22px; margin-bottom: 22px; border-radius: 20px; }
+    header { padding: 8px 0 24px; margin-bottom: 24px; }
     .logo { font-size: 15px; }
-    .logo-dot { width: 9px; height: 9px; }
-    .lang button { padding: 7px 16px; font-size: 12px; }
+    .logo-mark { width: 26px; height: 26px; font-size: 13px; border-radius: 6px; }
+    .icon-btn { width: 34px; height: 34px; }
+    .icon-btn svg { width: 15px; height: 15px; }
+    .lang-switch { height: 34px; }
+    .lang-switch button { font-size: 12px; padding: 0 10px; }
 
-    .tabs { padding: 6px; gap: 8px; margin-bottom: 22px; }
-    .tab {
-      font-size: 14px; padding: 14px 12px;
-      flex-direction: row; gap: 8px;
-    }
-    .tab svg { width: 16px; height: 16px; }
+    .hero { padding: 8px 0 32px; }
+    .hero h1 { font-size: 30px; margin-bottom: 12px; }
+    .hero p { font-size: 15px; max-width: 720px; }
 
-    /* Каждая вкладка — двухколоночный layout */
+    .tabs { gap: 4px; margin-bottom: 28px; }
+    .tab { padding: 12px 16px 14px; font-size: 14px; }
+    .tab svg { width: 15px; height: 15px; }
+
     .panel.active {
       display: grid;
-      grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
-      gap: 20px;
+      grid-template-columns: minmax(0, 1fr) 400px;
+      gap: 24px;
       align-items: start;
     }
+    .col-right { position: sticky; top: 32px; }
 
-    /* Правая колонка — sticky */
-    .col-right {
-      position: sticky;
-      top: 24px;
-    }
+    .card { padding: 20px; margin-bottom: 14px; }
+    .card-title { font-size: 13px; margin-bottom: 16px; }
 
-    .card { padding: 22px; border-radius: 20px; margin-bottom: 14px; }
-    .field-label { font-size: 12px; margin-bottom: 12px; }
-    .field-label svg { width: 15px; height: 15px; }
+    .model-grid { gap: 8px; }
+    .model-chip { padding: 12px 14px; }
+    .model-name { font-size: 14px; }
+    .model-price { font-size: 12px; }
 
-    .model-grid { grid-template-columns: repeat(2, 1fr); gap: 9px; }
-    .model-chip { padding: 14px 16px; border-radius: 14px; }
-    .model-name { font-size: 13px; margin-bottom: 5px; }
-    .model-price { font-size: 11px; }
+    input[type="number"], input[type="text"] { font-size: 16px; padding: 11px 14px; }
 
-    input[type="number"], input[type="text"] { font-size: 20px; padding: 16px; }
-    input[type="range"] { height: 5px; margin: 8px 0 4px; }
-    input[type="range"]::-webkit-slider-thumb { width: 22px; height: 22px; }
-    input[type="range"]::-moz-range-thumb { width: 22px; height: 22px; }
-    .range-scale { font-size: 11px; }
+    .result { padding: 28px; }
+    .result-value { font-size: 44px; }
+    .result-sub { font-size: 14px; }
+    .result-label { font-size: 13px; }
 
-    .result { padding: 32px 24px; border-radius: 20px; margin-bottom: 14px; }
-    .result-value { font-size: 68px; letter-spacing: -2.5px; margin-bottom: 8px; }
-    .result-label { font-size: 11px; margin-bottom: 14px; }
-    .result-sub { font-size: 14px; margin-bottom: 20px; }
-    .result-year { font-size: 13px; margin-bottom: 20px; }
-    .compare-bar { height: 8px; margin-bottom: 10px; }
-    .compare-legend { font-size: 12px; }
-
-    .everyday { padding: 18px; border-radius: 18px; gap: 16px; }
-    .everyday-icon { font-size: 34px; }
-    .everyday-text { font-size: 14px; }
-
-    .monthly { padding: 18px; border-radius: 18px; }
-    .monthly-value { font-size: 26px; }
-    .monthly-title { font-size: 12px; }
-
-    .btn { padding: 18px; font-size: 15px; border-radius: 16px; }
+    .btn { padding: 13px 20px; font-size: 14px; }
 
     .cmp-table { font-size: 14px; }
-    .cmp-table th { padding: 12px 6px; font-size: 11px; }
-    .cmp-table td { padding: 14px 6px; }
-    .cmp-table .rank { width: 30px; }
+    .cmp-table td { padding: 12px 8px; font-size: 14px; }
+    .cmp-table td:last-child { font-size: 14px; }
 
-    /* FAQ — 2 колонки */
-    .faq-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .faq-item { margin-bottom: 0; padding: 18px; }
-    .faq-q { font-size: 14px; }
-    .faq-a { font-size: 13px; }
+    .counter-value { font-size: 20px; }
 
-    .section-title { font-size: 14px; margin: 32px 0 14px; }
-    footer { margin-top: 32px; font-size: 12px; }
+    .faq-item .faq-q { padding: 16px 20px; font-size: 14px; }
+    .faq-item.open .faq-a { padding: 0 20px 18px; font-size: 14px; }
+
+    .section-title { font-size: 13px; margin: 40px 0 16px; }
+
+    .content-card { padding: 28px; }
+    .content-card h3 { font-size: 17px; margin-bottom: 12px; }
+    .content-card p { font-size: 14px; }
+    .content-card li { font-size: 14px; }
+
+    .use-cases { grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .use-case { padding: 18px 20px; }
+    .use-case-title { font-size: 14px; }
+    .use-case-desc { font-size: 13px; }
+
+    footer { margin-top: 48px; font-size: 13px; }
   }
 
-  /* Очень широкие экраны */
-  @media (min-width: 1300px) {
-    .container { max-width: 1280px; }
-    .panel.active { grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr); gap: 24px; }
+  @media (min-width: 1200px) {
+    .container { max-width: 1240px; }
+    .panel.active { grid-template-columns: minmax(0, 1fr) 440px; gap: 28px; }
   }
 </style>
 </head>
@@ -392,78 +806,94 @@
 <div class="container">
 
   <header>
-    <div class="logo"><div class="logo-dot"></div>AI Cost Calc</div>
-    <div class="lang">
-      <button class="active">RU</button>
-      <button>EN</button>
+    <div class="logo">
+      <span class="logo-mark">A</span>
+      AI Cost Calculator
+    </div>
+    <div class="header-controls">
+      <div class="lang-switch">
+        <button data-lang="ru" class="active">RU</button>
+        <button data-lang="en">EN</button>
+      </div>
+      <button class="icon-btn" id="themeToggle" aria-label="Toggle theme">
+        <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+        </svg>
+      </button>
     </div>
   </header>
 
-  <div class="tabs">
+  <section class="hero">
+    <h1 data-i18n="heroTitle">Сколько стоит твой запрос к ИИ?</h1>
+    <p data-i18n="heroSub">Посчитай точную стоимость любого запроса к GPT-4.1, Claude, Gemini и DeepSeek. Цены обновляются автоматически каждый день.</p>
+  </section>
+
+  <nav class="tabs">
     <button class="tab active" data-tab="calc">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 10h2M14 10h2M8 14h2M14 14h2M8 18h2M14 18h2"/></svg>
-      Расчёт
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h2M12 11h2M16 11h.01M8 15h2M12 15h2M16 15h.01"/></svg>
+      <span data-i18n="tabCalc">Расчёт</span>
     </button>
     <button class="tab" data-tab="reverse">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 1l4 4-4 4M3 11V9a4 4 0 014-4h14M7 23l-4-4 4-4M21 13v2a4 4 0 01-4 4H3"/></svg>
-      Реверс
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4M3 11v-1a4 4 0 014-4h14M7 22l-4-4 4-4M21 13v1a4 4 0 01-4 4H3"/></svg>
+      <span data-i18n="tabReverse">Реверс</span>
     </button>
     <button class="tab" data-tab="compare">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 3v18h18M7 16l4-4 4 4 6-6"/></svg>
-      Сравнить
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18M7 16l4-4 4 4 6-6"/></svg>
+      <span data-i18n="tabCompare">Сравнить</span>
     </button>
     <button class="tab" data-tab="text">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
-      Анализ
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
+      <span data-i18n="tabText">Анализ</span>
     </button>
-  </div>
+  </nav>
 
   <!-- ============ PANEL 1: CALC ============ -->
   <div class="panel active" id="panel-calc">
     <div class="col-left">
       <div class="card">
-        <div class="field-label">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-          Модель
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          <span data-i18n="modelLabel">Модель</span>
         </div>
         <div class="model-grid" id="modelGrid"></div>
-        <div class="updated-badge" style="margin-top:14px;">
-          <span class="dot"></span><span id="updatedText">Загрузка цен...</span>
-        </div>
       </div>
 
       <div class="card">
-        <div class="field-label">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-          Размер запроса
-          <span class="hint" id="totalTokensHint">2000 токенов</span>
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          <span data-i18n="sizeLabel">Размер запроса</span>
+          <span class="card-title-hint" id="totalTokensHint">2000</span>
         </div>
 
         <div class="presets" id="presets"></div>
 
-        <div style="font-size:11px;color:var(--muted);margin-bottom:6px;font-weight:700;">ПРОМПТ (ВХОД)</div>
-        <div class="input-wrap">
+        <div class="input-group">
+          <div class="input-label">
+            <span data-i18n="inputLabel">Промпт (вход)</span>
+            <span class="label-unit" data-i18n="tokensUnit">токенов</span>
+          </div>
           <input type="number" id="inTokens" value="1500" inputmode="numeric" min="1">
-          <span class="input-unit">ТОКЕНОВ</span>
+          <input type="range" id="inSlider" min="50" max="20000" step="50" value="1500">
+          <div class="range-scale"><span>50</span><span>20 000</span></div>
         </div>
-        <input type="range" id="inSlider" min="50" max="20000" step="50" value="1500">
-        <div class="range-scale"><span>50</span><span>20K</span></div>
 
-        <div style="font-size:11px;color:var(--muted);margin:14px 0 6px;font-weight:700;">ОТВЕТ (ВЫХОД)</div>
-        <div class="input-wrap">
+        <div class="input-group">
+          <div class="input-label">
+            <span data-i18n="outputLabel">Ответ (выход)</span>
+            <span class="label-unit" data-i18n="tokensUnit">токенов</span>
+          </div>
           <input type="number" id="outTokens" value="500" inputmode="numeric" min="1">
-          <span class="input-unit">ТОКЕНОВ</span>
+          <input type="range" id="outSlider" min="50" max="20000" step="50" value="500">
+          <div class="range-scale"><span>50</span><span>20 000</span></div>
         </div>
-        <input type="range" id="outSlider" min="50" max="20000" step="50" value="500">
-        <div class="range-scale"><span>50</span><span>20K</span></div>
       </div>
     </div>
 
     <div class="col-right">
       <div class="result" id="resultCard">
-        <div class="result-label">Стоимость запроса</div>
-        <div class="result-value" id="resultValue">$0.00</div>
-        <div class="result-sub" id="resultRub">≈ 0 ₽</div>
+        <div class="result-label" data-i18n="costLabel">Стоимость запроса</div>
+        <div class="result-value num" id="resultValue">$0.00</div>
+        <div class="result-sub num" id="resultRub">≈ 0 ₽</div>
         <div class="result-year" id="resultYear"></div>
 
         <div class="compare-bar">
@@ -471,30 +901,30 @@
           <div class="compare-seg out" id="barOut"></div>
         </div>
         <div class="compare-legend">
-          <div class="legend-item"><span class="legend-dot" style="background:var(--accent)"></span>Вход <b id="legIn">$0</b></div>
-          <div class="legend-item"><span class="legend-dot" style="background:var(--accent2)"></span>Выход <b id="legOut">$0</b></div>
+          <div class="legend-item"><span class="legend-dot" style="background:var(--accent)"></span><span data-i18n="legendIn">Вход</span> <b id="legIn">$0</b></div>
+          <div class="legend-item"><span class="legend-dot" style="background:var(--accent);opacity:0.35"></span><span data-i18n="legendOut">Выход</span> <b id="legOut">$0</b></div>
         </div>
       </div>
 
       <button class="btn" id="copyBtn">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-        <span id="copyText">Скопировать</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+        <span id="copyText" data-i18n="copyBtn">Скопировать</span>
       </button>
 
-      <div class="everyday" id="everydayBox">
-        <div class="everyday-icon">☕</div>
-        <div class="everyday-text" id="everydayText">Введи токены, чтобы увидеть сравнение</div>
+      <div class="hint-card">
+        <svg class="hint-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+        <div id="everydayText" data-i18n="hintEmpty">Введи токены, чтобы увидеть сравнение</div>
       </div>
 
-      <div class="monthly">
+      <div class="card">
         <div class="monthly-head">
-          <div class="monthly-title">При таком темпе</div>
-          <div class="monthly-value" id="monthlyUsd">$0 <span>/мес</span></div>
+          <div class="monthly-title" data-i18n="monthlyTitle">При таком темпе</div>
+          <div class="monthly-value num" id="monthlyUsd">$0 <span data-i18n="perMonth">/мес</span></div>
         </div>
         <input type="range" id="perDaySlider" min="1" max="5000" step="1" value="100">
         <div class="range-scale">
           <span>1</span>
-          <span id="perDayLabel">100 запросов/день</span>
+          <span id="perDayLabel">100 / <span data-i18n="perDay">день</span></span>
           <span>5000</span>
         </div>
       </div>
@@ -505,38 +935,46 @@
   <div class="panel" id="panel-reverse">
     <div class="col-left">
       <div class="card">
-        <div class="field-label">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-          Бюджет в долларах
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          <span data-i18n="budgetLabel">Бюджет</span>
         </div>
-        <div class="input-wrap" style="margin-bottom:10px;">
+        <div class="input-group">
+          <div class="input-label">
+            <span data-i18n="amountLabel">Сумма</span>
+            <span class="label-unit">USD</span>
+          </div>
           <input type="number" id="budget" value="10" inputmode="decimal" step="0.01">
-          <span class="input-unit">USD</span>
         </div>
+      </div>
 
-        <div class="field-label" style="margin-top:8px;">Модель</div>
+      <div class="card">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          <span data-i18n="modelLabel">Модель</span>
+        </div>
         <div class="model-grid" id="modelGridRev"></div>
       </div>
 
-      <div class="monthly">
+      <div class="card">
         <div class="monthly-head">
-          <div class="monthly-title">Размер одного запроса</div>
-          <div class="monthly-value" id="revSize">2000 <span>токенов</span></div>
+          <div class="monthly-title" data-i18n="reqSizeLabel">Размер одного запроса</div>
+          <div class="monthly-value num" id="revSize">2000 <span data-i18n="tokensUnit">токенов</span></div>
         </div>
         <input type="range" id="revSizeSlider" min="200" max="20000" step="100" value="2000">
-        <div class="range-scale"><span>200</span><span>20K</span></div>
-        <div style="font-size:11px;color:var(--muted);margin-top:10px;line-height:1.5;">
-          Соотношение вход/выход: <b id="revRatio">75% / 25%</b>
+        <div class="range-scale"><span>200</span><span>20 000</span></div>
+        <div style="font-size:12px;color:var(--text-3);margin-top:10px;">
+          <span data-i18n="ioRatio">Вход / выход</span>: <span class="num" id="revRatio">75% / 25%</span>
         </div>
       </div>
     </div>
 
     <div class="col-right">
       <div class="result">
-        <div class="result-label">За этот бюджет можно сделать</div>
-        <div class="result-value" id="revRequests">0</div>
-        <div class="result-sub" id="revSub">запросов среднего размера</div>
-        <div class="result-year" id="revDetail">—</div>
+        <div class="result-label" data-i18n="budgetResult">За этот бюджет можно сделать</div>
+        <div class="result-value num" id="revRequests">0</div>
+        <div class="result-sub num" id="revSub" data-i18n="reqPlural">запросов</div>
+        <div class="result-year" id="revDetail" style="margin-bottom:0;">—</div>
       </div>
     </div>
   </div>
@@ -545,17 +983,23 @@
   <div class="panel" id="panel-compare">
     <div class="col-left">
       <div class="card">
-        <div class="field-label">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20"/></svg>
-          Сравнение на одинаковой задаче
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M2 12h20"/></svg>
+          <span data-i18n="taskLabel">Задача</span>
         </div>
-        <div style="display:flex;gap:10px;">
-          <div style="flex:1;">
-            <div style="font-size:10px;color:var(--muted);margin-bottom:6px;font-weight:700;">ВХОД</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div class="input-group" style="margin-bottom:0;">
+            <div class="input-label">
+              <span data-i18n="legendIn">Вход</span>
+              <span class="label-unit" data-i18n="tokensUnit">токенов</span>
+            </div>
             <input type="number" id="cmpIn" value="2000" inputmode="numeric">
           </div>
-          <div style="flex:1;">
-            <div style="font-size:10px;color:var(--muted);margin-bottom:6px;font-weight:700;">ВЫХОД</div>
+          <div class="input-group" style="margin-bottom:0;">
+            <div class="input-label">
+              <span data-i18n="legendOut">Выход</span>
+              <span class="label-unit" data-i18n="tokensUnit">токенов</span>
+            </div>
             <input type="number" id="cmpOut" value="1000" inputmode="numeric">
           </div>
         </div>
@@ -568,17 +1012,17 @@
           <thead>
             <tr>
               <th class="rank">#</th>
-              <th>Модель</th>
-              <th style="text-align:right;">Цена</th>
+              <th data-i18n="tableModel">Модель</th>
+              <th data-i18n="tablePrice">Цена</th>
             </tr>
           </thead>
           <tbody></tbody>
         </table>
       </div>
 
-      <div class="everyday">
-        <div class="everyday-icon">🏆</div>
-        <div class="everyday-text" id="cmpWinner">Заполняй — увидим победителя</div>
+      <div class="hint-card">
+        <svg class="hint-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>
+        <div id="cmpWinner" data-i18n="cmpEmpty">Заполняй — увидим победителя</div>
       </div>
     </div>
   </div>
@@ -587,23 +1031,23 @@
   <div class="panel" id="panel-text">
     <div class="col-left">
       <div class="card">
-        <div class="field-label">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
-          Вставь текст — узнаешь размер
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
+          <span data-i18n="textLabel">Текст</span>
         </div>
-        <textarea id="textInput" placeholder="Вставь сюда любой текст — я посчитаю, сколько это токенов..."></textarea>
-        <div style="display:flex;gap:8px;margin-top:12px;">
-          <div style="flex:1;background:rgba(0,0,0,0.3);border-radius:12px;padding:12px;text-align:center;">
-            <div style="font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Символов</div>
-            <div style="font-size:20px;font-weight:800;font-variant-numeric:tabular-nums;" id="charCount">0</div>
+        <textarea id="textInput" data-i18n-placeholder="textPlaceholder" placeholder="Вставь текст — посчитаю токены и стоимость"></textarea>
+        <div class="counters">
+          <div class="counter">
+            <div class="counter-label" data-i18n="chars">Символов</div>
+            <div class="counter-value" id="charCount">0</div>
           </div>
-          <div style="flex:1;background:rgba(0,0,0,0.3);border-radius:12px;padding:12px;text-align:center;">
-            <div style="font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Слов</div>
-            <div style="font-size:20px;font-weight:800;font-variant-numeric:tabular-nums;" id="wordCount">0</div>
+          <div class="counter">
+            <div class="counter-label" data-i18n="words">Слов</div>
+            <div class="counter-value" id="wordCount">0</div>
           </div>
-          <div style="flex:1;background:rgba(0,255,163,0.08);border:1px solid rgba(0,255,163,0.2);border-radius:12px;padding:12px;text-align:center;">
-            <div style="font-size:10px;color:var(--accent);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">≈ Токенов</div>
-            <div style="font-size:20px;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums;" id="tokenCount">0</div>
+          <div class="counter accent">
+            <div class="counter-label" data-i18n="tokensUnit">Токенов</div>
+            <div class="counter-value" id="tokenCount">0</div>
           </div>
         </div>
       </div>
@@ -611,118 +1055,264 @@
 
     <div class="col-right">
       <div class="result">
-        <div class="result-label">Стоимость этого текста на GPT-4.1</div>
-        <div class="result-value" id="textCost">$0</div>
-        <div class="result-sub" id="textCostRub">≈ 0 ₽</div>
+        <div class="result-label" data-i18n="textCostLabel">Стоимость на GPT-4.1</div>
+        <div class="result-value num" id="textCost">$0</div>
+        <div class="result-sub num" id="textCostRub">≈ 0 ₽</div>
       </div>
 
       <div class="card">
-        <div style="font-size:13px;color:var(--muted);line-height:1.7;">
-          💡 <b style="color:var(--text)">Как считается:</b> для русского текста ≈ 2 символа на токен, для английского ≈ 4 символа на токен. Среднее значение используется автоматически.
+        <div style="font-size:13px;color:var(--text-2);line-height:1.7;" data-i18n="textHint">
+          Для русского текста ≈ 2 символа на токен, для английского ≈ 4. Среднее значение используется автоматически.
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ============ FAQ ============ -->
-  <div class="section-title">Вопросы</div>
-  <div class="faq-grid">
-    <div class="faq-item open">
-      <div class="faq-q">Что такое токен? <span class="faq-toggle">+</span></div>
-      <div class="faq-a">Токен — часть слова. ~1000 токенов ≈ 750 слов на английском или ~500 слов на русском.</div>
+  <!-- ============ CONTENT: What is it ============ -->
+  <div class="section-title" data-i18n="sect1Title">Что это такое</div>
+  <div class="content-card">
+    <h3 data-i18n="sect1Head">Зачем нужен калькулятор стоимости ИИ</h3>
+    <p data-i18n="sect1P1">Каждый запрос к ChatGPT, Claude или Gemini стоит денег. Провайдеры берут плату за количество токенов — кусочков текста, на которые разбивается твой промпт и ответ модели. Если не считать это заранее, можно неожиданно получить счёт на десятки или сотни долларов в конце месяца.</p>
+    <p data-i18n="sect1P2">Этот калькулятор помогает:</p>
+    <ul>
+      <li data-i18n="sect1L1">Понять, сколько стоит один запрос к разным моделям</li>
+      <li data-i18n="sect1L2">Сравнить цены GPT-4.1, Claude, Gemini и DeepSeek на одинаковой задаче</li>
+      <li data-i18n="sect1L3">Прикинуть бюджет на месяц или год при известной нагрузке</li>
+      <li data-i18n="sect1L4">Выбрать модель, которая не разорит при больших объёмах</li>
+    </ul>
+  </div>
+
+  <!-- ============ CONTENT: Use cases ============ -->
+  <div class="section-title" data-i18n="sect2Title">Примеры использования</div>
+  <div class="use-cases">
+    <div class="use-case">
+      <div class="use-case-title" data-i18n="case1Title">Чат-бот поддержки</div>
+      <div class="use-case-desc" data-i18n="case1Desc">1 000 диалогов в день по 500 токенов. Считай цену за день, месяц и год, чтобы не превысить бюджет.</div>
     </div>
-    <div class="faq-item">
-      <div class="faq-q">Почему выход дороже? <span class="faq-toggle">+</span></div>
-      <div class="faq-a">Модели генерируют ответ по одному токену, каждый требует вычислений. Промпт обрабатывается параллельно, поэтому дешевле в 3–5 раз.</div>
+    <div class="use-case">
+      <div class="use-case-title" data-i18n="case2Title">Генерация контента</div>
+      <div class="use-case-desc" data-i18n="case2Desc">50 статей в день по 3 000 токенов. Сравни GPT-4.1 и GPT-4o mini — разница в цене может быть в 13 раз.</div>
     </div>
-    <div class="faq-item">
-      <div class="faq-q">Цены актуальны? <span class="faq-toggle">+</span></div>
-      <div class="faq-a">Да, данные обновляются автоматически каждый день с публичной базы LiteLLM.</div>
-    </div>
-    <div class="faq-item">
-      <div class="faq-q">Как сэкономить? <span class="faq-toggle">+</span></div>
-      <div class="faq-a">Используй кэширование промптов (в 10–30× дешевле), Batch API (скидка 50%), и выбирай mini/flash версии для простых задач.</div>
+    <div class="use-case">
+      <div class="use-case-title" data-i18n="case3Title">Разработка с ИИ</div>
+      <div class="use-case-desc" data-i18n="case3Desc">Code review, рефакторинг, генерация тестов. Считай цену на реальных задачах, а не по ощущениям.</div>
     </div>
   </div>
 
+  <!-- ============ CONTENT: Tokens ============ -->
+  <div class="section-title" data-i18n="sect3Title">Про токены</div>
+  <div class="content-card">
+    <h3 data-i18n="sect3Head">Что такое токен и почему выход дороже</h3>
+    <p data-i18n="sect3P1">Токен — это часть слова. Модель разбивает текст на токены, чтобы обработать его. В среднем <code>1 000 токенов ≈ 750 слов</code> на английском или <code>≈ 500 слов</code> на русском.</p>
+    <p data-i18n="sect3P2">Провайдеры берут разную цену за вход (твой промпт) и выход (ответ модели). Выход обычно в 3–4 раза дороже, потому что генерация идёт по одному токену за раз и требует больше вычислений.</p>
+    <p data-i18n="sect3P3">Пример: короткий вопрос ≈ 50 токенов промпта и ≈ 200 токенов ответа. На GPT-4.1 это стоит около <code>$0.0017</code>. На GPT-4o mini — в 13 раз дешевле.</p>
+  </div>
+
+  <!-- ============ CONTENT: Save money ============ -->
+  <div class="section-title" data-i18n="sect4Title">Как сэкономить</div>
+  <div class="content-card">
+    <h3 data-i18n="sect4Head">Три способа сократить расходы в 2–30 раз</h3>
+    <ul>
+      <li data-i18n="sect4L1"><b>Кэширование промптов</b> — если ты отправляешь один и тот же контекст много раз, провайдер запомнит его и второй раз возьмёт в 10–30 раз дешевле.</li>
+      <li data-i18n="sect4L2"><b>Batch API</b> — если запросы не срочные, можно отправить их пакетом и получить скидку 50%.</li>
+      <li data-i18n="sect4L3"><b>Mini и Flash версии</b> — для простых задач (классификация, короткие ответы) они дают почти тот же результат, но стоят в 10–20 раз меньше.</li>
+    </ul>
+  </div>
+
+  <!-- ============ FAQ ============ -->
+  <div class="section-title" data-i18n="faqTitle">Частые вопросы</div>
+
+  <div class="faq-item">
+    <div class="faq-q"><span data-i18n="faq1Q">Что такое токен?</span> <span class="faq-toggle">+</span></div>
+    <div class="faq-a" data-i18n="faq1A">Токен — часть слова. ~1000 токенов ≈ 750 слов на английском или ~500 слов на русском.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q"><span data-i18n="faq2Q">Почему выход дороже входа?</span> <span class="faq-toggle">+</span></div>
+    <div class="faq-a" data-i18n="faq2A">Модели генерируют ответ по одному токену, каждый требует вычислений. Промпт обрабатывается параллельно, поэтому дешевле в 3–5 раз.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q"><span data-i18n="faq3Q">Цены актуальны?</span> <span class="faq-toggle">+</span></div>
+    <div class="faq-a" data-i18n="faq3A">Да, данные обновляются автоматически каждый день из публичной базы LiteLLM, которую поддерживает сообщество.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q"><span data-i18n="faq4Q">Как считается стоимость?</span> <span class="faq-toggle">+</span></div>
+    <div class="faq-a" data-i18n="faq4A">Отдельно считаются входные и выходные токены по тарифам модели, затем суммируются. Выход всегда дороже входа.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q"><span data-i18n="faq5Q">Какой курс рубля используется?</span> <span class="faq-toggle">+</span></div>
+    <div class="faq-a" data-i18n="faq5A">Фиксированный курс, близкий к текущему. Он нужен только для ориентира — расчёты в долларах, потому что все провайдеры выставляют счёт в USD.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q"><span data-i18n="faq6Q">Это бесплатно?</span> <span class="faq-toggle">+</span></div>
+    <div class="faq-a" data-i18n="faq6A">Да, калькулятор полностью бесплатный. Сайт существует на рекламные доходы, но реклама не влияет на расчёты.</div>
+  </div>
+
   <footer>
-    © 2026 AI Cost Calculator
+    © 2026 AI Cost Calculator · <a href="#" data-i18n="footerPrivacy">Privacy</a>
   </footer>
 </div>
 
 <script>
-// ============ ЗАГРУЗКА ЦЕН ============
+// ============ TRANSLATIONS ============
+const I18N = {
+  ru: {
+    heroTitle: 'Сколько стоит твой запрос к ИИ?',
+    heroSub: 'Посчитай точную стоимость любого запроса к GPT-4.1, Claude, Gemini и DeepSeek. Цены обновляются автоматически каждый день.',
+    tabCalc: 'Расчёт', tabReverse: 'Реверс', tabCompare: 'Сравнить', tabText: 'Анализ',
+    modelLabel: 'Модель', sizeLabel: 'Размер запроса',
+    inputLabel: 'Промпт (вход)', outputLabel: 'Ответ (выход)',
+    tokensUnit: 'токенов', costLabel: 'Стоимость запроса',
+    legendIn: 'Вход', legendOut: 'Выход',
+    copyBtn: 'Скопировать', copied: 'Скопировано',
+    hintEmpty: 'Введи токены, чтобы увидеть сравнение',
+    monthlyTitle: 'При таком темпе', perMonth: '/мес', perDay: 'день',
+    budgetLabel: 'Бюджет', amountLabel: 'Сумма',
+    reqSizeLabel: 'Размер одного запроса', ioRatio: 'Вход / выход',
+    budgetResult: 'За этот бюджет можно сделать', reqPlural: 'запросов',
+    taskLabel: 'Задача', tableModel: 'Модель', tablePrice: 'Цена',
+    cmpEmpty: 'Заполняй — увидим победителя',
+    textLabel: 'Текст',
+    textPlaceholder: 'Вставь текст — посчитаю токены и стоимость',
+    chars: 'Символов', words: 'Слов',
+    textCostLabel: 'Стоимость на GPT-4.1',
+    textHint: 'Для русского текста ≈ 2 символа на токен, для английского ≈ 4. Среднее значение используется автоматически.',
+    year: 'За год',
+    reqPerDay: 'запросов/день',
+    winner: '{w} дешевле всех — разница с {l} в {d}×',
+    oneReq: 'Один запрос', noBudget: 'Бюджета не хватает на 1 запрос',
+    reqs: 'запросов',
+    coffeeFew: 'Меньше чашки кофе в месяц',
+    coffee1: '{n} чашки кофе в месяц',
+    coffee2: '{n} чашек кофе в месяц',
+    pizza: 'Как {n} пицц в месяц',
+    subs: 'Как подписка на 2 сервиса в месяц',
+    serious: '{n} $ в месяц',
+    sect1Title: 'Что это такое',
+    sect1Head: 'Зачем нужен калькулятор стоимости ИИ',
+    sect1P1: 'Каждый запрос к ChatGPT, Claude или Gemini стоит денег. Провайдеры берут плату за количество токенов — кусочков текста, на которые разбивается твой промпт и ответ модели. Если не считать это заранее, можно неожиданно получить счёт на десятки или сотни долларов в конце месяца.',
+    sect1P2: 'Этот калькулятор помогает:',
+    sect1L1: 'Понять, сколько стоит один запрос к разным моделям',
+    sect1L2: 'Сравнить цены GPT-4.1, Claude, Gemini и DeepSeek на одинаковой задаче',
+    sect1L3: 'Прикинуть бюджет на месяц или год при известной нагрузке',
+    sect1L4: 'Выбрать модель, которая не разорит при больших объёмах',
+    sect2Title: 'Примеры использования',
+    case1Title: 'Чат-бот поддержки',
+    case1Desc: '1 000 диалогов в день по 500 токенов. Считай цену за день, месяц и год, чтобы не превысить бюджет.',
+    case2Title: 'Генерация контента',
+    case2Desc: '50 статей в день по 3 000 токенов. Сравни GPT-4.1 и GPT-4o mini — разница в цене может быть в 13 раз.',
+    case3Title: 'Разработка с ИИ',
+    case3Desc: 'Code review, рефакторинг, генерация тестов. Считай цену на реальных задачах, а не по ощущениям.',
+    sect3Title: 'Про токены',
+    sect3Head: 'Что такое токен и почему выход дороже',
+    sect3P1: 'Токен — это часть слова. Модель разбивает текст на токены, чтобы обработать его. В среднем 1 000 токенов ≈ 750 слов на английском или ≈ 500 слов на русском.',
+    sect3P2: 'Провайдеры берут разную цену за вход (твой промпт) и выход (ответ модели). Выход обычно в 3–4 раза дороже, потому что генерация идёт по одному токену за раз и требует больше вычислений.',
+    sect3P3: 'Пример: короткий вопрос ≈ 50 токенов промпта и ≈ 200 токенов ответа. На GPT-4.1 это стоит около $0.0017. На GPT-4o mini — в 13 раз дешевле.',
+    sect4Title: 'Как сэкономить',
+    sect4Head: 'Три способа сократить расходы в 2–30 раз',
+    sect4L1: 'Кэширование промптов — если ты отправляешь один и тот же контекст много раз, провайдер запомнит его и второй раз возьмёт в 10–30 раз дешевле.',
+    sect4L2: 'Batch API — если запросы не срочные, можно отправить их пакетом и получить скидку 50%.',
+    sect4L3: 'Mini и Flash версии — для простых задач (классификация, короткие ответы) они дают почти тот же результат, но стоят в 10–20 раз меньше.',
+    faqTitle: 'Частые вопросы',
+    faq1Q: 'Что такое токен?',
+    faq1A: 'Токен — часть слова. ~1000 токенов ≈ 750 слов на английском или ~500 слов на русском.',
+    faq2Q: 'Почему выход дороже входа?',
+    faq2A: 'Модели генерируют ответ по одному токену, каждый требует вычислений. Промпт обрабатывается параллельно, поэтому дешевле в 3–5 раз.',
+    faq3Q: 'Цены актуальны?',
+    faq3A: 'Да, данные обновляются автоматически каждый день из публичной базы LiteLLM.',
+    faq4Q: 'Как считается стоимость?',
+    faq4A: 'Отдельно считаются входные и выходные токены по тарифам модели, затем суммируются. Выход всегда дороже входа.',
+    faq5Q: 'Какой курс рубля используется?',
+    faq5A: 'Фиксированный курс, близкий к текущему. Он нужен только для ориентира — расчёты в долларах.',
+    faq6Q: 'Это бесплатно?',
+    faq6A: 'Да, калькулятор полностью бесплатный. Сайт существует на рекламные доходы, но реклама не влияет на расчёты.',
+    footerPrivacy: 'Privacy',
+    presetQ: 'Вопрос', presetEmail: 'Письмо', presetArticle: 'Статья',
+    presetCode: 'Код', presetTranslate: 'Перевод', presetAnalysis: 'Анализ',
+    updated: 'Обновлено', offline: 'офлайн',
+    perDaySuffix: '/ день',
+  },
+  en: {
+    heroTitle: 'How much does your AI request cost?',
+    heroSub: 'Calculate the exact cost of any request to GPT-4.1, Claude, Gemini and DeepSeek. Prices update automatically every day.',
+    tabCalc: 'Calculate', tabReverse: 'Reverse', tabCompare: 'Compare', tabText: 'Analyze',
+    modelLabel: 'Model', sizeLabel: 'Request size',
+    inputLabel: 'Prompt (input)', outputLabel: 'Response (output)',
+    tokensUnit: 'tokens', costLabel: 'Request cost',
+    legendIn: 'Input', legendOut: 'Output',
+    copyBtn: 'Copy', copied: 'Copied',
+    hintEmpty: 'Enter tokens to see comparison',
+    monthlyTitle: 'At this rate', perMonth: '/mo', perDay: 'day',
+    budgetLabel: 'Budget', amountLabel: 'Amount',
+    reqSizeLabel: 'Size of one request', ioRatio: 'Input / output',
+    budgetResult: 'With this budget you can make', reqPlural: 'requests',
+    taskLabel: 'Task', tableModel: 'Model', tablePrice: 'Price',
+    cmpEmpty: 'Fill in to see the winner',
+    textLabel: 'Text',
+    textPlaceholder: 'Paste text — I will count tokens and cost',
+    chars: 'Characters', words: 'Words',
+    textCostLabel: 'Cost on GPT-4.1',
+    textHint: 'For Russian text ≈ 2 chars per token, for English ≈ 4. Average used automatically.',
+    year: 'Per year',
+    reqPerDay: 'requests/day',
+    winner: '{w} is cheapest — {d}× cheaper than {l}',
+    oneReq: 'One request', noBudget: 'Budget is not enough for 1 request',
+    reqs: 'requests',
+    coffeeFew: 'Less than a cup of coffee per month',
+    coffee1: '{n} cups of coffee per month',
+    coffee2: '{n} cups of coffee per month',
+    pizza: 'Like {n} pizzas per month',
+    subs: 'Like a subscription to 2 services per month',
+    serious: '${n} per month',
+    sect1Title: 'What it is',
+    sect1Head: 'Why you need an AI cost calculator',
+    sect1P1: 'Every request to ChatGPT, Claude or Gemini costs money. Providers charge for tokens — chunks of text your prompt and the model response are split into. Without estimating it upfront, you can suddenly get a bill of tens or hundreds of dollars at the end of the month.',
+    sect1P2: 'This calculator helps you:',
+    sect1L1: 'Understand how much one request costs across different models',
+    sect1L2: 'Compare prices of GPT-4.1, Claude, Gemini and DeepSeek on the same task',
+    sect1L3: 'Estimate monthly or yearly budget for a known workload',
+    sect1L4: 'Pick a model that will not break the bank at scale',
+    sect2Title: 'Use cases',
+    case1Title: 'Support chatbot',
+    case1Desc: '1,000 conversations per day at 500 tokens each. Calculate daily, monthly and yearly cost to stay within budget.',
+    case2Title: 'Content generation',
+    case2Desc: '50 articles per day at 3,000 tokens each. Compare GPT-4.1 and GPT-4o mini — the difference can be 13×.',
+    case3Title: 'AI-assisted development',
+    case3Desc: 'Code review, refactoring, test generation. Calculate real cost instead of guessing.',
+    sect3Title: 'About tokens',
+    sect3Head: 'What is a token and why output is more expensive',
+    sect3P1: 'A token is a piece of a word. The model splits text into tokens to process it. On average 1,000 tokens ≈ 750 English words or ≈ 500 Russian words.',
+    sect3P2: 'Providers charge differently for input (your prompt) and output (model response). Output is usually 3–4× more expensive because generation happens one token at a time and requires more computation.',
+    sect3P3: 'Example: a short question ≈ 50 prompt tokens and ≈ 200 response tokens. On GPT-4.1 this costs about $0.0017. On GPT-4o mini — 13× cheaper.',
+    sect4Title: 'How to save',
+    sect4Head: 'Three ways to cut costs 2–30×',
+    sect4L1: 'Prompt caching — if you send the same context many times, the provider remembers it and charges 10–30× less the second time.',
+    sect4L2: 'Batch API — for non-urgent requests you can send them in a batch and get a 50% discount.',
+    sect4L3: 'Mini and Flash versions — for simple tasks they give almost the same result at 10–20× lower cost.',
+    faqTitle: 'FAQ',
+    faq1Q: 'What is a token?',
+    faq1A: 'A token is a piece of a word. ~1000 tokens ≈ 750 English words or ~500 Russian words.',
+    faq2Q: 'Why is output more expensive?',
+    faq2A: 'Models generate response one token at a time, each requires computation. Prompts are processed in parallel, so 3–5× cheaper.',
+    faq3Q: 'Are prices up to date?',
+    faq3A: 'Yes, data is updated automatically every day from the public LiteLLM database.',
+    faq4Q: 'How is cost calculated?',
+    faq4A: 'Input and output tokens are calculated separately at each model rate, then summed. Output is always more expensive.',
+    faq5Q: 'Which exchange rate is used?',
+    faq5A: 'A fixed rate close to current. It is only for reference — all calculations are in USD.',
+    faq6Q: 'Is it free?',
+    faq6A: 'Yes, the calculator is completely free. The site is funded by ads, but ads do not affect calculations.',
+    footerPrivacy: 'Privacy',
+    presetQ: 'Question', presetEmail: 'Email', presetArticle: 'Article',
+    presetCode: 'Code', presetTranslate: 'Translate', presetAnalysis: 'Analysis',
+    updated: 'Updated', offline: 'offline',
+    perDaySuffix: '/ day',
+  }
+};
+
+// ============ STATE ============
 let MODELS = {};
 let USD_TO_RUB = 92;
-
-async function loadPrices() {
-  try {
-    const res = await fetch('prices.json?t=' + Date.now());
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const data = await res.json();
-    MODELS = data.models || {};
-    USD_TO_RUB = data.usd_to_rub || 92;
-
-    const badge = document.getElementById('updatedText');
-    if (badge && data.updated) {
-      const d = new Date(data.updated);
-      badge.textContent = 'Цены обновлены: ' + d.toLocaleDateString('ru-RU');
-    }
-    console.log('Цены загружены:', Object.keys(MODELS).length);
-  } catch (err) {
-    console.error('Fallback:', err);
-    MODELS = {
-      'gpt-4.1':         { name: 'GPT-4.1',         in: 2.00, out: 8.00,  color: '#00d26a' },
-      'gpt-4o-mini':     { name: 'GPT-4o mini',     in: 0.15, out: 0.60,  color: '#00d26a' },
-      'claude-sonnet-5': { name: 'Claude Sonnet 5', in: 2.00, out: 10.00, color: '#d97757' },
-      'claude-opus-5':   { name: 'Claude Opus 5',   in: 5.00, out: 25.00, color: '#d97757' },
-      'gemini-2.5-pro':  { name: 'Gemini 2.5 Pro',  in: 1.25, out: 10.00, color: '#4285f4' },
-      'deepseek-v4':     { name: 'DeepSeek V4',     in: 0.22, out: 0.66,  color: '#5b6ee1' },
-    };
-    const badge = document.getElementById('updatedText');
-    if (badge) badge.textContent = 'Цены: резервные данные';
-  }
-}
-
-const $ = id => document.getElementById(id);
-
-function fmtUsd(v) {
-  if (v === 0) return '$0';
-  if (v < 0.0001) return '$' + v.toFixed(6);
-  if (v < 0.01) return '$' + v.toFixed(5);
-  if (v < 1) return '$' + v.toFixed(4);
-  if (v < 100) return '$' + v.toFixed(3);
-  return '$' + v.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
-}
-function fmtRub(v) {
-  if (v < 0.01) return '≈ ' + v.toFixed(4) + ' ₽';
-  if (v < 1) return '≈ ' + v.toFixed(3) + ' ₽';
-  if (v < 100) return '≈ ' + v.toFixed(2) + ' ₽';
-  return '≈ ' + Math.round(v).toLocaleString('ru-RU') + ' ₽';
-}
-function vibrate(ms) { if (navigator.vibrate) navigator.vibrate(ms); }
-
-function tween(el, from, to, formatter, duration = 350) {
-  const start = performance.now();
-  const diff = to - from;
-  if (Math.abs(diff) < 0.000001) { el.textContent = formatter(to); return; }
-  function tick(now) {
-    const t = Math.min((now - start) / duration, 1);
-    const eased = 1 - Math.pow(1 - t, 3);
-    el.textContent = formatter(from + diff * eased);
-    if (t < 1) requestAnimationFrame(tick);
-  }
-  requestAnimationFrame(tick);
-}
-
-const PRESETS = [
-  { emoji: '💬', label: 'Вопрос',  in: 50,   out: 200 },
-  { emoji: '✉️', label: 'Письмо',  in: 300,  out: 800 },
-  { emoji: '📄', label: 'Статья',  in: 2000, out: 3000 },
-  { emoji: '💻', label: 'Код',     in: 5000, out: 1500 },
-  { emoji: '🌐', label: 'Перевод', in: 1000, out: 1200 },
-  { emoji: '📊', label: 'Анализ',  in: 8000, out: 500 },
-];
+let currentLang = 'ru';
 
 const state = {
   model: 'gpt-4.1',
@@ -734,6 +1324,114 @@ const state = {
   revSize: 2000,
   revRatio: 0.75,
 };
+
+const PRESETS = [
+  { key: 'presetQ',         in: 50,   out: 200 },
+  { key: 'presetEmail',     in: 300,  out: 800 },
+  { key: 'presetArticle',   in: 2000, out: 3000 },
+  { key: 'presetCode',      in: 5000, out: 1500 },
+  { key: 'presetTranslate', in: 1000, out: 1200 },
+  { key: 'presetAnalysis',  in: 8000, out: 500 },
+];
+
+// ============ I18N ============
+function t(key) {
+  return (I18N[currentLang] && I18N[currentLang][key]) || key;
+}
+
+function applyLanguage(lang) {
+  currentLang = lang;
+  document.documentElement.lang = lang;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') return;
+    el.textContent = t(key);
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    el.placeholder = t(el.getAttribute('data-i18n-placeholder'));
+  });
+  document.querySelectorAll('.lang-switch button').forEach(b => {
+    b.classList.toggle('active', b.dataset.lang === lang);
+  });
+  localStorage.setItem('lang', lang);
+  renderPresets();
+  renderModels('modelGrid', state.model, k => { state.model = k; renderModels('modelGrid', k, ()=>{}); update(); });
+  renderModels('modelGridRev', state.revModel, k => { state.revModel = k; renderModels('modelGridRev', k, ()=>{}); updateReverse(); });
+  updateCompare();
+  update();
+  updateReverse();
+  updateText();
+}
+
+// ============ THEME ============
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('theme', theme);
+  const tc = document.getElementById('themeColor');
+  if (tc) tc.setAttribute('content', theme === 'dark' ? '#0d0d0d' : '#fafafa');
+  const icon = document.getElementById('themeIcon');
+  if (icon) {
+    icon.innerHTML = theme === 'dark'
+      ? '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>'
+      : '<path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>';
+  }
+}
+
+// ============ PRICES ============
+async function loadPrices() {
+  try {
+    const res = await fetch('prices.json?t=' + Date.now());
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    MODELS = data.models || {};
+    USD_TO_RUB = data.usd_to_rub || 92;
+  } catch (err) {
+    console.error('Fallback:', err);
+    MODELS = {
+      'gpt-4.1':         { name: 'GPT-4.1',         in: 2.00, out: 8.00,  color: '#10a37f' },
+      'gpt-4o-mini':     { name: 'GPT-4o mini',     in: 0.15, out: 0.60,  color: '#10a37f' },
+      'claude-sonnet-5': { name: 'Claude Sonnet 5', in: 2.00, out: 10.00, color: '#d97757' },
+      'claude-opus-5':   { name: 'Claude Opus 5',   in: 5.00, out: 25.00, color: '#d97757' },
+      'gemini-2.5-pro':  { name: 'Gemini 2.5 Pro',  in: 1.25, out: 10.00, color: '#4285f4' },
+      'deepseek-v4':     { name: 'DeepSeek V4',     in: 0.22, out: 0.66,  color: '#5b6ee1' },
+    };
+  }
+}
+
+// ============ HELPERS ============
+const $ = id => document.getElementById(id);
+function locale() { return currentLang === 'ru' ? 'ru-RU' : 'en-US'; }
+function vibrate(ms) { if (navigator.vibrate) navigator.vibrate(ms); }
+
+function fmtUsd(v) {
+  if (v === 0) return '$0';
+  if (v < 0.0001) return '$' + v.toFixed(6);
+  if (v < 0.01) return '$' + v.toFixed(5);
+  if (v < 1) return '$' + v.toFixed(4);
+  if (v < 100) return '$' + v.toFixed(3);
+  return '$' + v.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+}
+function fmtRub(v) {
+  const rub = currentLang === 'ru' ? '₽' : '₽';
+  const approx = currentLang === 'ru' ? '≈' : '≈';
+  if (v < 0.01) return approx + ' ' + v.toFixed(4) + ' ' + rub;
+  if (v < 1) return approx + ' ' + v.toFixed(3) + ' ' + rub;
+  if (v < 100) return approx + ' ' + v.toFixed(2) + ' ' + rub;
+  return approx + ' ' + Math.round(v).toLocaleString(locale()) + ' ' + rub;
+}
+
+function tween(el, from, to, formatter, duration = 250) {
+  const start = performance.now();
+  const diff = to - from;
+  if (Math.abs(diff) < 0.000001) { el.textContent = formatter(to); return; }
+  function tick(now) {
+    const t = Math.min((now - start) / duration, 1);
+    const eased = 1 - Math.pow(1 - t, 3);
+    el.textContent = formatter(from + diff * eased);
+    if (t < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
 
 function renderModels(gridId, activeKey, onClick) {
   const grid = $(gridId);
@@ -747,10 +1445,10 @@ function renderModels(gridId, activeKey, onClick) {
     const chip = document.createElement('div');
     chip.className = 'model-chip' + (activeKey === key ? ' active' : '');
     chip.innerHTML = `
-      <span class="model-name"><span class="dot" style="background:${m.color || '#888'}"></span>${m.name}</span>
+      <span class="model-name"><span class="model-dot" style="background:${m.color || '#888'}"></span>${m.name}</span>
       <span class="model-price">$${m.in} / $${m.out}</span>
     `;
-    chip.addEventListener('click', () => { vibrate(10); onClick(key); });
+    chip.addEventListener('click', () => { vibrate(8); onClick(key); });
     grid.appendChild(chip);
   });
 }
@@ -759,17 +1457,18 @@ let lastTotal = 0;
 
 function renderPresets() {
   const box = $('presets');
+  if (!box) return;
   box.innerHTML = '';
   PRESETS.forEach(p => {
     const btn = document.createElement('button');
     btn.className = 'preset';
-    btn.innerHTML = `${p.emoji} ${p.label}`;
+    btn.textContent = t(p.key);
     btn.addEventListener('click', () => {
       state.inTokens = p.in; state.outTokens = p.out;
       $('inTokens').value = p.in; $('outTokens').value = p.out;
       $('inSlider').value = Math.min(p.in, 20000);
       $('outSlider').value = Math.min(p.out, 20000);
-      vibrate(10);
+      vibrate(8);
       box.querySelectorAll('.preset').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       update();
@@ -780,15 +1479,14 @@ function renderPresets() {
 
 function updateEveryday(monthly) {
   const el = $('everydayText');
-  const icon = $('everydayBox').querySelector('.everyday-icon');
-  if (monthly < 0.5) { icon.textContent = '🪙'; el.innerHTML = `Меньше <b>чашки кофе</b> в месяц`; return; }
+  if (!el) return;
+  if (monthly < 0.5) { el.textContent = t('coffeeFew'); return; }
   const cups = monthly / 3;
-  if (cups < 1) { icon.textContent = '☕'; el.innerHTML = `<b>${cups.toFixed(2)} чашки кофе</b> в месяц`; return; }
-  if (cups < 10) { icon.textContent = '☕'; el.innerHTML = `<b>${cups.toFixed(1)} чашек кофе</b> в месяц`; return; }
-  if (monthly < 100) { icon.textContent = '🍕'; el.innerHTML = `Как <b>${(monthly/12).toFixed(1)} пицц</b> в месяц`; return; }
-  if (monthly < 500) { icon.textContent = '📱'; el.innerHTML = `Как <b>подписка на 2 сервиса</b> в месяц`; return; }
-  icon.textContent = '💸';
-  el.innerHTML = `<b>${Math.round(monthly).toLocaleString('ru-RU')} $</b> в месяц — это уже серьёзно`;
+  if (cups < 1) { el.textContent = t('coffee1').replace('{n}', cups.toFixed(2)); return; }
+  if (cups < 10) { el.textContent = t('coffee2').replace('{n}', cups.toFixed(1)); return; }
+  if (monthly < 100) { el.textContent = t('pizza').replace('{n}', (monthly/12).toFixed(1)); return; }
+  if (monthly < 500) { el.textContent = t('subs'); return; }
+  el.textContent = t('serious').replace('{n}', Math.round(monthly).toLocaleString(locale()));
 }
 
 function update() {
@@ -802,7 +1500,7 @@ function update() {
 
   tween($('resultValue'), lastTotal, total, fmtUsd);
   $('resultRub').textContent = fmtRub(total * USD_TO_RUB);
-  $('resultYear').innerHTML = yearly > 0.01 ? `За год: <b>${fmtUsd(yearly)}</b>` : '';
+  $('resultYear').innerHTML = yearly > 0.01 ? `${t('year')}: <b>${fmtUsd(yearly)}</b>` : '';
 
   $('legIn').textContent  = fmtUsd(costIn);
   $('legOut').textContent = fmtUsd(costOut);
@@ -810,8 +1508,8 @@ function update() {
   $('barIn').style.width  = pctIn + '%';
   $('barOut').style.width = (100 - pctIn) + '%';
 
-  $('monthlyUsd').innerHTML = fmtUsd(monthly) + ' <span>/мес</span>';
-  $('totalTokensHint').textContent = (state.inTokens + state.outTokens).toLocaleString('ru-RU') + ' токенов';
+  $('monthlyUsd').innerHTML = fmtUsd(monthly) + ' <span>' + t('perMonth') + '</span>';
+  $('totalTokensHint').textContent = (state.inTokens + state.outTokens).toLocaleString(locale()) + ' ' + t('tokensUnit');
   updateEveryday(monthly);
 
   lastTotal = total;
@@ -826,7 +1524,7 @@ function bindPair(numEl, sliderEl, key) {
   });
   sliderEl.addEventListener('input', () => {
     const v = parseInt(sliderEl.value);
-    state[key] = v; numEl.value = v; vibrate(5); update();
+    state[key] = v; numEl.value = v; vibrate(4); update();
   });
 }
 
@@ -840,13 +1538,13 @@ function updateReverse() {
 
   const el = $('revRequests');
   const from = parseInt(el.textContent.replace(/\s/g,'')) || 0;
-  tween(el, from, count, v => Math.round(v).toLocaleString('ru-RU'));
+  tween(el, from, count, v => Math.round(v).toLocaleString(locale()));
 
-  $('revSub').textContent = `запросов по ${state.revSize.toLocaleString('ru-RU')} токенов на ${m.name}`;
+  $('revSub').textContent = `${t('reqs')} · ${state.revSize.toLocaleString(locale())} ${t('tokensUnit')}`;
   $('revDetail').innerHTML = count > 0
-    ? `Цена 1 запроса: <b>${fmtUsd(perReq)}</b>`
-    : `Бюджета не хватает даже на 1 запрос`;
-  $('revSize').innerHTML = state.revSize.toLocaleString('ru-RU') + ' <span>токенов</span>';
+    ? `${t('oneReq')}: <b>${fmtUsd(perReq)}</b>`
+    : t('noBudget');
+  $('revSize').innerHTML = state.revSize.toLocaleString(locale()) + ' <span>' + t('tokensUnit') + '</span>';
   $('revRatio').textContent = `${Math.round(state.revRatio*100)}% / ${Math.round((1-state.revRatio)*100)}%`;
 }
 
@@ -866,7 +1564,7 @@ function updateCompare() {
     tr.innerHTML = `
       <td class="rank">${i + 1}</td>
       <td><div class="model-cell"><span class="dot" style="background:${r.m.color}"></span>${r.m.name}</div></td>
-      <td style="text-align:right;" class="${i === 0 ? 'best' : ''}">${fmtUsd(r.cost)}</td>
+      <td class="${i === 0 ? 'best' : ''}">${fmtUsd(r.cost)}</td>
     `;
     tbody.appendChild(tr);
   });
@@ -875,7 +1573,10 @@ function updateCompare() {
     const winner = rows[0];
     const worst = rows[rows.length - 1];
     const diff = worst.cost / winner.cost;
-    $('cmpWinner').innerHTML = `<b>${winner.m.name}</b> — дешевле всех. Разница с ${worst.m.name}: <b>в ${diff.toFixed(1)}×</b>`;
+    $('cmpWinner').textContent = t('winner')
+      .replace('{w}', winner.m.name)
+      .replace('{l}', worst.m.name)
+      .replace('{d}', diff.toFixed(1));
   }
 }
 
@@ -893,9 +1594,9 @@ function updateText() {
   const avgCharsPerToken = (cyr / totalLetters) * 2 + (lat / totalLetters) * 4;
   const tokens = Math.max(1, Math.round(chars / avgCharsPerToken));
 
-  $('charCount').textContent = chars.toLocaleString('ru-RU');
-  $('wordCount').textContent = words.toLocaleString('ru-RU');
-  $('tokenCount').textContent = chars ? tokens.toLocaleString('ru-RU') : '0';
+  $('charCount').textContent = chars.toLocaleString(locale());
+  $('wordCount').textContent = words.toLocaleString(locale());
+  $('tokenCount').textContent = chars ? tokens.toLocaleString(locale()) : '0';
 
   const m = MODELS['gpt-4.1'];
   if (!m) return;
@@ -904,9 +1605,10 @@ function updateText() {
   $('textCostRub').textContent = fmtRub(cost * USD_TO_RUB);
 }
 
+// ============ EVENTS ============
 document.querySelectorAll('.tab').forEach(tab => {
   tab.addEventListener('click', () => {
-    vibrate(10);
+    vibrate(8);
     const target = tab.dataset.tab;
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
@@ -923,17 +1625,34 @@ document.querySelectorAll('.faq-item').forEach(item => {
   item.addEventListener('click', () => item.classList.toggle('open'));
 });
 
-document.querySelectorAll('.lang button').forEach(btn => {
+document.querySelectorAll('.lang-switch button').forEach(btn => {
   btn.addEventListener('click', () => {
-    document.querySelectorAll('.lang button').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
+    vibrate(8);
+    applyLanguage(btn.dataset.lang);
   });
 });
 
-// ============ ИНИЦИАЛИЗАЦИЯ ============
+$('themeToggle').addEventListener('click', () => {
+  const cur = document.documentElement.getAttribute('data-theme') || 'light';
+  applyTheme(cur === 'dark' ? 'light' : 'dark');
+});
+
+// ============ INIT ============
 async function init() {
+  // Theme
+  const savedTheme = localStorage.getItem('theme');
+  const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  applyTheme(savedTheme || (prefersDark ? 'dark' : 'light'));
+
+  // Language
+  const savedLang = localStorage.getItem('lang');
+  const browserLang = (navigator.language || 'ru').slice(0, 2).toLowerCase();
+  const lang = savedLang || (browserLang === 'ru' ? 'ru' : 'en');
+
+  // Prices
   await loadPrices();
 
+  // Models
   const keys = Object.keys(MODELS);
   state.model = keys[0] || 'gpt-4.1';
   state.revModel = state.model;
@@ -949,18 +1668,17 @@ async function init() {
     updateReverse();
   });
 
-  renderPresets();
   bindPair($('inTokens'),  $('inSlider'),  'inTokens');
   bindPair($('outTokens'), $('outSlider'), 'outTokens');
 
   $('perDaySlider').addEventListener('input', (e) => {
     state.perDay = parseInt(e.target.value);
-    $('perDayLabel').textContent = state.perDay.toLocaleString('ru-RU') + ' запросов/день';
-    vibrate(5); update();
+    $('perDayLabel').textContent = state.perDay.toLocaleString(locale()) + ' ' + t('perDaySuffix');
+    vibrate(4); update();
   });
 
   $('budget').addEventListener('input', (e) => { state.budget = parseFloat(e.target.value) || 0; updateReverse(); });
-  $('revSizeSlider').addEventListener('input', (e) => { state.revSize = parseInt(e.target.value); vibrate(5); updateReverse(); });
+  $('revSizeSlider').addEventListener('input', (e) => { state.revSize = parseInt(e.target.value); vibrate(4); updateReverse(); });
   $('cmpIn').addEventListener('input', updateCompare);
   $('cmpOut').addEventListener('input', updateCompare);
   $('textInput').addEventListener('input', updateText);
@@ -971,22 +1689,21 @@ async function init() {
     const costIn  = (state.inTokens  / 1e6) * m.in;
     const costOut = (state.outTokens / 1e6) * m.out;
     const total   = costIn + costOut;
-    const text = `${m.name}: ${state.inTokens} → ${state.outTokens} токенов = ${fmtUsd(total)} (${fmtRub(total * USD_TO_RUB)})`;
+    const text = `${m.name}: ${state.inTokens} → ${state.outTokens} = ${fmtUsd(total)}`;
     try {
       await navigator.clipboard.writeText(text);
-      $('copyText').textContent = 'Скопировано!';
+      $('copyText').textContent = t('copied');
       $('copyBtn').classList.add('copied');
-      vibrate(20);
+      vibrate(15);
       setTimeout(() => {
-        $('copyText').textContent = 'Скопировать';
+        $('copyText').textContent = t('copyBtn');
         $('copyBtn').classList.remove('copied');
-      }, 1600);
+      }, 1500);
     } catch(e) {}
   });
 
-  update();
-  updateCompare();
-  updateReverse();
+  // Apply language (also re-renders presets + updates everything)
+  applyLanguage(lang);
 }
 
 init();
