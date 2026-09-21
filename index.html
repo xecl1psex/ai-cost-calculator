@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>AI Cost Calculator — калькулятор стоимости запросов к ИИ</title>
+<meta name="description" content="Узнай, сколько стоит твой запрос к GPT-4.1, Claude, Gemini или DeepSeek. Цены обновляются автоматически каждый день.">
+<meta name="keywords" content="стоимость токенов, цена GPT-4, цена Claude, цена Gemini, калькулятор API, AI cost calculator">
+<meta name="theme-color" content="#08080c">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="AI Cost Calculator">
+<meta property="og:description" content="Узнай точную стоимость запроса к нейросетям за секунду.">
+<meta property="og:site_name" content="AI Cost Calculator">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="AI Cost Calculator">
+<meta name="twitter:description" content="Калькулятор стоимости запросов к ИИ">
+
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧮</text></svg>">
+
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  :root {
+    --accent: #00ffa3; --accent2: #7c5cff;
+    --bg: #08080c; --card: rgba(255,255,255,0.04);
+    --border: rgba(255,255,255,0.08);
+    --text: #fff; --muted: #6b6b7b;
+  }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+    padding: 14px; padding-bottom: 80px;
+    min-height: 100vh; position: relative; overflow-x: hidden;
+  }
+  body::before {
+    content: ''; position: fixed; top: -200px; left: 50%;
+    transform: translateX(-50%); width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(124,92,255,0.15) 0%, transparent 70%);
+    pointer-events: none; z-index: 0;
+  }
+  body::after {
+    content: ''; position: fixed; bottom: -300px; right: -100px;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(0,255,163,0.08) 0%, transparent 70%);
+    pointer-events: none; z-index: 0;
+  }
+  .container { position: relative; z-index: 1; max-width: 480px; margin: 0 auto; }
+
+  header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 20px; padding: 10px 14px;
+    background: rgba(255,255,255,0.03);
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--border); border-radius: 18px;
+  }
+  .logo { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; }
+  .logo-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--accent); box-shadow: 0 0 12px var(--accent);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+  .lang { display: flex; background: rgba(0,0,0,0.4); border-radius: 10px; padding: 3px; gap: 2px; }
+  .lang button {
+    background: transparent; border: none; color: var(--muted);
+    padding: 5px 10px; border-radius: 8px; font-size: 11px; font-weight: 600; cursor: pointer;
+  }
+  .lang button.active { background: var(--accent); color: #000; }
+
+  .tabs {
+    display: flex; gap: 6px; margin-bottom: 16px;
+    background: rgba(0,0,0,0.3); border-radius: 14px; padding: 4px;
+    border: 1px solid var(--border);
+  }
+  .tab {
+    flex: 1; background: transparent; border: none; color: var(--muted);
+    padding: 10px 6px; border-radius: 10px; font-size: 12px; font-weight: 700;
+    cursor: pointer; transition: all 0.25s;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+  }
+  .tab svg { width: 14px; height: 14px; }
+  .tab.active {
+    background: linear-gradient(135deg, rgba(0,255,163,0.15), rgba(124,92,255,0.15));
+    color: var(--text);
+    box-shadow: 0 0 20px rgba(0,255,163,0.1);
+  }
+  .panel { display: none; animation: fadeIn 0.3s; }
+  .panel.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  .card {
+    background: var(--card);
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--border); border-radius: 18px;
+    padding: 16px; margin-bottom: 10px;
+  }
+  .field-label {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 11px; font-weight: 700; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;
+  }
+  .field-label svg { width: 13px; height: 13px; }
+  .field-label .hint { margin-left: auto; text-transform: none; letter-spacing: 0; font-weight: 600; font-size: 11px; color: var(--accent); }
+
+  .presets {
+    display: flex; gap: 6px; overflow-x: auto;
+    margin: 0 -16px 14px; padding: 0 16px 4px;
+    scrollbar-width: none;
+  }
+  .presets::-webkit-scrollbar { display: none; }
+  .preset {
+    flex-shrink: 0; background: rgba(0,0,0,0.3);
+    border: 1px solid var(--border); border-radius: 100px;
+    padding: 7px 12px; font-size: 12px; font-weight: 600;
+    color: var(--text); cursor: pointer; white-space: nowrap; transition: all 0.2s;
+  }
+  .preset:active { transform: scale(0.95); }
+  .preset.active { border-color: var(--accent); background: rgba(0,255,163,0.1); }
+
+  .model-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 7px; }
+  .model-chip {
+    background: rgba(0,0,0,0.3); border: 1px solid var(--border);
+    border-radius: 13px; padding: 10px; cursor: pointer; transition: all 0.2s; text-align: left;
+  }
+  .model-chip:active { transform: scale(0.97); }
+  .model-chip.active {
+    border-color: var(--accent); background: rgba(0,255,163,0.06);
+    box-shadow: 0 0 20px rgba(0,255,163,0.1);
+  }
+  .model-chip .dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 5px; vertical-align: middle; }
+  .model-name { font-size: 11px; font-weight: 700; display: block; margin-bottom: 3px; }
+  .model-price { font-size: 10px; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+  input[type="number"], input[type="text"], textarea {
+    width: 100%; background: rgba(0,0,0,0.4);
+    border: 1px solid var(--border); color: var(--text);
+    padding: 13px; border-radius: 13px;
+    font-size: 17px; font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    font-family: inherit;
+    transition: border-color 0.2s;
+  }
+  input[type="number"]:focus, input[type="text"]:focus, textarea:focus { outline: none; border-color: var(--accent); }
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  input[type="number"] { -moz-appearance: textfield; }
+  textarea { font-size: 14px; font-weight: 500; min-height: 100px; resize: vertical; line-height: 1.5; }
+
+  .input-wrap { position: relative; }
+  .input-unit {
+    position: absolute; right: 13px; top: 50%;
+    transform: translateY(-50%); font-size: 10px;
+    color: var(--muted); font-weight: 700; pointer-events: none;
+    letter-spacing: 0.5px;
+  }
+
+  input[type="range"] {
+    -webkit-appearance: none; appearance: none;
+    width: 100%; height: 4px; border-radius: 2px;
+    background: rgba(255,255,255,0.08); outline: none; margin: 6px 0 2px;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 18px; height: 18px; border-radius: 50%;
+    background: var(--accent); box-shadow: 0 0 12px rgba(0,255,163,0.5);
+    cursor: pointer;
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 18px; height: 18px; border-radius: 50%;
+    background: var(--accent); border: none;
+  }
+  .range-scale {
+    display: flex; justify-content: space-between;
+    font-size: 10px; color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .result {
+    background: linear-gradient(135deg, rgba(0,255,163,0.08) 0%, rgba(124,92,255,0.08) 100%);
+    border: 1px solid rgba(0,255,163,0.2);
+    border-radius: 18px; padding: 20px 16px;
+    text-align: center; margin-bottom: 10px;
+    position: relative; overflow: hidden;
+  }
+  .result::before {
+    content: ''; position: absolute; top: -50%; left: 50%;
+    transform: translateX(-50%); width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(0,255,163,0.15) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .result-label {
+    font-size: 10px; color: var(--muted); text-transform: uppercase;
+    letter-spacing: 1px; font-weight: 700; margin-bottom: 8px; position: relative;
+  }
+  .result-value {
+    font-size: 40px; font-weight: 800; line-height: 1;
+    letter-spacing: -1.5px;
+    background: linear-gradient(135deg, #fff 0%, var(--accent) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text; margin-bottom: 5px;
+    position: relative; font-variant-numeric: tabular-nums;
+  }
+  .result-sub { font-size: 12px; color: var(--muted); margin-bottom: 14px; position: relative; }
+  .result-year {
+    font-size: 11px; color: var(--accent); position: relative;
+    font-weight: 600; margin-bottom: 14px;
+  }
+
+  .compare-bar { height: 6px; border-radius: 3px; overflow: hidden; background: rgba(0,0,0,0.4); display: flex; margin-bottom: 6px; position: relative; }
+  .compare-seg { height: 100%; transition: width 0.4s cubic-bezier(0.4,0,0.2,1); }
+  .compare-seg.in { background: linear-gradient(90deg, var(--accent), #00c98a); }
+  .compare-seg.out { background: linear-gradient(90deg, var(--accent2), #a58aff); }
+  .compare-legend {
+    display: flex; justify-content: space-between;
+    font-size: 10px; color: var(--muted);
+    font-variant-numeric: tabular-nums; position: relative;
+  }
+  .compare-legend b { color: var(--text); font-weight: 700; }
+  .legend-item { display: flex; align-items: center; gap: 5px; }
+  .legend-dot { width: 6px; height: 6px; border-radius: 50%; }
+
+  .everyday {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 14px; margin-bottom: 10px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .everyday-icon { font-size: 28px; flex-shrink: 0; }
+  .everyday-text { font-size: 13px; line-height: 1.5; color: var(--muted); }
+  .everyday-text b { color: var(--text); font-weight: 700; }
+
+  .monthly {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 14px; margin-bottom: 10px;
+  }
+  .monthly-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .monthly-title { font-size: 11px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+  .monthly-value { font-size: 20px; font-weight: 800; letter-spacing: -0.5px; font-variant-numeric: tabular-nums; }
+  .monthly-value span { font-size: 11px; color: var(--muted); font-weight: 600; }
+
+  .btn {
+    width: 100%; background: linear-gradient(135deg, var(--accent) 0%, #00c98a 100%);
+    color: #000; border: none; padding: 15px;
+    border-radius: 14px; font-size: 14px; font-weight: 800;
+    cursor: pointer; margin-bottom: 10px;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    transition: all 0.2s;
+    box-shadow: 0 8px 24px rgba(0,255,163,0.2);
+  }
+  .btn:active { transform: scale(0.98); }
+  .btn.copied { background: linear-gradient(135deg, #fff, #e0e0e0); }
+
+  .cmp-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .cmp-table th {
+    text-align: left; padding: 8px 4px;
+    font-size: 10px; color: var(--muted); font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    border-bottom: 1px solid var(--border);
+  }
+  .cmp-table td {
+    padding: 10px 4px; border-bottom: 1px solid rgba(255,255,255,0.04);
+    font-variant-numeric: tabular-nums;
+  }
+  .cmp-table tr:last-child td { border-bottom: none; }
+  .cmp-table .rank { font-weight: 800; color: var(--muted); width: 22px; }
+  .cmp-table .best { color: var(--accent); font-weight: 800; }
+  .cmp-table .model-cell { display: flex; align-items: center; gap: 6px; font-weight: 600; }
+  .cmp-table .model-cell .dot { width: 6px; height: 6px; border-radius: 50%; }
+
+  .faq-item {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 14px; padding: 14px; margin-bottom: 7px; cursor: pointer;
+  }
+  .faq-q { display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 700; }
+  .faq-toggle { color: var(--muted); font-size: 18px; transition: transform 0.3s; line-height: 1; }
+  .faq-item.open .faq-toggle { transform: rotate(45deg); color: var(--accent); }
+  .faq-a {
+    max-height: 0; overflow: hidden;
+    transition: max-height 0.3s ease, margin-top 0.3s;
+    font-size: 12px; color: var(--muted); line-height: 1.6;
+  }
+  .faq-item.open .faq-a { max-height: 220px; margin-top: 10px; }
+
+  footer {
+    text-align: center; font-size: 11px; color: var(--muted);
+    margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border);
+  }
+  footer a { color: var(--muted); text-decoration: none; }
+
+  .section-title {
+    font-size: 12px; font-weight: 700; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.5px;
+    margin: 16px 0 10px; padding-left: 4px;
+  }
+
+  .updated-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 10px; color: var(--muted); font-weight: 600;
+    background: rgba(0,0,0,0.3); padding: 4px 8px;
+    border-radius: 100px; border: 1px solid var(--border);
+    margin-bottom: 10px;
+  }
+  .updated-badge .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="logo"><div class="logo-dot"></div>AI Cost Calc</div>
+    <div class="lang">
+      <button class="active">RU</button>
+      <button>EN</button>
+    </div>
+  </header>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="calc">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 10h2M14 10h2M8 14h2M14 14h2M8 18h2M14 18h2"/></svg>
+      Расчёт
+    </button>
+    <button class="tab" data-tab="reverse">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 1l4 4-4 4M3 11V9a4 4 0 014-4h14M7 23l-4-4 4-4M21 13v2a4 4 0 01-4 4H3"/></svg>
+      Реверс
+    </button>
+    <button class="tab" data-tab="compare">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 3v18h18M7 16l4-4 4 4 6-6"/></svg>
+      Сравнить
+    </button>
+    <button class="tab" data-tab="text">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
+      Анализ
+    </button>
+  </div>
+
+  <div class="panel active" id="panel-calc">
+    <div class="card">
+      <div class="field-label">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        Модель
+      </div>
+      <div class="model-grid" id="modelGrid"></div>
+      <div class="updated-badge" id="updatedBadge" style="margin-top:12px;margin-bottom:0;">
+        <span class="dot"></span><span id="updatedText">Загрузка цен...</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="field-label">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        Размер запроса
+        <span class="hint" id="totalTokensHint">2000 токенов</span>
+      </div>
+
+      <div class="presets" id="presets"></div>
+
+      <div style="font-size:11px;color:var(--muted);margin-bottom:6px;font-weight:700;">ПРОМПТ (ВХОД)</div>
+      <div class="input-wrap">
+        <input type="number" id="inTokens" value="1500" inputmode="numeric" min="1">
+        <span class="input-unit">ТОКЕНОВ</span>
+      </div>
+      <input type="range" id="inSlider" min="50" max="20000" step="50" value="1500">
+      <div class="range-scale"><span>50</span><span>20K</span></div>
+
+      <div style="font-size:11px;color:var(--muted);margin:12px 0 6px;font-weight:700;">ОТВЕТ (ВЫХОД)</div>
+      <div class="input-wrap">
+        <input type="number" id="outTokens" value="500" inputmode="numeric" min="1">
+        <span class="input-unit">ТОКЕНОВ</span>
+      </div>
+      <input type="range" id="outSlider" min="50" max="20000" step="50" value="500">
+      <div class="range-scale"><span>50</span><span>20K</span></div>
+    </div>
+
+    <div class="result" id="resultCard">
+      <div class="result-label">Стоимость запроса</div>
+      <div class="result-value" id="resultValue">$0.00</div>
+      <div class="result-sub" id="resultRub">≈ 0 ₽</div>
+      <div class="result-year" id="resultYear"></div>
+
+      <div class="compare-bar">
+        <div class="compare-seg in" id="barIn"></div>
+        <div class="compare-seg out" id="barOut"></div>
+      </div>
+      <div class="compare-legend">
+        <div class="legend-item"><span class="legend-dot" style="background:var(--accent)"></span>Вход <b id="legIn">$0</b></div>
+        <div class="legend-item"><span class="legend-dot" style="background:var(--accent2)"></span>Выход <b id="legOut">$0</b></div>
+      </div>
+    </div>
+
+    <div class="everyday" id="everydayBox">
+      <div class="everyday-icon">☕</div>
+      <div class="everyday-text" id="everydayText">Введи токены, чтобы увидеть сравнение</div>
+    </div>
+
+    <div class="monthly">
+      <div class="monthly-head">
+        <div class="monthly-title">При таком темпе</div>
+        <div class="monthly-value" id="monthlyUsd">$0 <span>/мес</span></div>
+      </div>
+      <input type="range" id="perDaySlider" min="1" max="5000" step="1" value="100">
+      <div class="range-scale">
+        <span>1</span>
+        <span id="perDayLabel">100 запросов/день</span>
+        <span>5000</span>
+      </div>
+    </div>
+
+    <button class="btn" id="copyBtn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+      <span id="copyText">Скопировать</span>
+    </button>
+  </div>
+
+  <div class="panel" id="panel-reverse">
+    <div class="card">
+      <div class="field-label">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        Сколько могу купить за бюджет
+      </div>
+      <div class="input-wrap" style="margin-bottom:8px;">
+        <input type="number" id="budget" value="10" inputmode="decimal" step="0.01">
+        <span class="input-unit">USD</span>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:10px;">Бюджет в долларах</div>
+
+      <div class="field-label" style="margin-top:8px;">Модель</div>
+      <div class="model-grid" id="modelGridRev"></div>
+    </div>
+
+    <div class="result">
+      <div class="result-label">За этот бюджет можно сделать</div>
+      <div class="result-value" id="revRequests">0</div>
+      <div class="result-sub" id="revSub">запросов среднего размера</div>
+      <div class="result-year" id="revDetail">—</div>
+    </div>
+
+    <div class="monthly" style="margin-bottom:10px;">
+      <div class="monthly-head">
+        <div class="monthly-title">Размер одного запроса</div>
+        <div class="monthly-value" id="revSize">2000 <span>токенов</span></div>
+      </div>
+      <input type="range" id="revSizeSlider" min="200" max="20000" step="100" value="2000">
+      <div class="range-scale"><span>200</span><span>20K</span></div>
+      <div style="font-size:11px;color:var(--muted);margin-top:8px;line-height:1.5;">
+        Соотношение вход/выход: <b id="revRatio">75% / 25%</b>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-compare">
+    <div class="card">
+      <div class="field-label">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20"/></svg>
+        Сравнение на одинаковой задаче
+      </div>
+      <div style="display:flex;gap:8px;">
+        <div style="flex:1;">
+          <div style="font-size:10px;color:var(--muted);margin-bottom:4px;font-weight:700;">ВХОД</div>
+          <input type="number" id="cmpIn" value="2000" inputmode="numeric" style="font-size:14px;padding:10px;">
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:10px;color:var(--muted);margin-bottom:4px;font-weight:700;">ВЫХОД</div>
+          <input type="number" id="cmpOut" value="1000" inputmode="numeric" style="font-size:14px;padding:10px;">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <table class="cmp-table" id="cmpTable">
+        <thead>
+          <tr>
+            <th class="rank">#</th>
+            <th>Модель</th>
+            <th style="text-align:right;">Цена</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="everyday">
+      <div class="everyday-icon">🏆</div>
+      <div class="everyday-text" id="cmpWinner">Заполняй — увидим победителя</div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-text">
+    <div class="card">
+      <div class="field-label">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
+        Вставь текст — узнаешь размер
+      </div>
+      <textarea id="textInput" placeholder="Вставь сюда любой текст — я посчитаю, сколько это токенов..."></textarea>
+      <div style="display:flex;gap:8px;margin-top:10px;">
+        <div style="flex:1;background:rgba(0,0,0,0.3);border-radius:12px;padding:12px;text-align:center;">
+          <div style="font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Символов</div>
+          <div style="font-size:20px;font-weight:800;font-variant-numeric:tabular-nums;" id="charCount">0</div>
+        </div>
+        <div style="flex:1;background:rgba(0,0,0,0.3);border-radius:12px;padding:12px;text-align:center;">
+          <div style="font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Слов</div>
+          <div style="font-size:20px;font-weight:800;font-variant-numeric:tabular-nums;" id="wordCount">0</div>
+        </div>
+        <div style="flex:1;background:rgba(0,255,163,0.08);border:1px solid rgba(0,255,163,0.2);border-radius:12px;padding:12px;text-align:center;">
+          <div style="font-size:10px;color:var(--accent);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">≈ Токенов</div>
+          <div style="font-size:20px;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums;" id="tokenCount">0</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="result" style="margin-bottom:10px;">
+      <div class="result-label">Стоимость этого текста на GPT-4.1</div>
+      <div class="result-value" id="textCost">$0</div>
+      <div class="result-sub" id="textCostRub">≈ 0 ₽</div>
+    </div>
+
+    <div class="card">
+      <div style="font-size:12px;color:var(--muted);line-height:1.6;">
+        💡 <b style="color:var(--text)">Как считается:</b> для русского текста ≈ 2 символа на токен, для английского ≈ 4 символа на токен. Среднее значение используется автоматически.
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">Вопросы</div>
+  <div class="faq-item open">
+    <div class="faq-q">Что такое токен? <span class="faq-toggle">+</span></div>
+    <div class="faq-a">Токен — часть слова. ~1000 токенов ≈ 750 слов на английском или ~500 слов на русском.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">Почему выход дороже? <span class="faq-toggle">+</span></div>
+    <div class="faq-a">Модели генерируют ответ по одному токену, каждый требует вычислений. Промпт обрабатывается параллельно, поэтому дешевле в 3–5 раз.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">Цены актуальны? <span class="faq-toggle">+</span></div>
+    <div class="faq-a">Да, данные обновляются автоматически каждый день с официальных страниц провайдеров через публичную базу LiteLLM.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">Как сэкономить? <span class="faq-toggle">+</span></div>
+    <div class="faq-a">Используй кэширование промптов (в 10–30× дешевле), Batch API (скидка 50%), и выбирай mini/flash версии моделей для простых задач.</div>
+  </div>
+
+  <footer>
+    © 2026 AI Cost Calculator
+  </footer>
+</div>
+
+<script>
+// ============ ЗАГРУЗКА ЦЕН ============
+let MODELS = {};
+let USD_TO_RUB = 92;
+let pricesLoaded = false;
+
+async function loadPrices() {
+  try {
+    const res = await fetch('prices.json?t=' + Date.now());
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    MODELS = data.models || {};
+    USD_TO_RUB = data.usd_to_rub || 92;
+
+    const badge = document.getElementById('updatedText');
+    if (badge && data.updated) {
+      const d = new Date(data.updated);
+      badge.textContent = 'Цены обновлены: ' + d.toLocaleDateString('ru-RU');
+    }
+
+    pricesLoaded = true;
+    console.log('Цены загружены:', Object.keys(MODELS).length, 'моделей');
+  } catch (err) {
+    console.error('Не удалось загрузить prices.json, использую резерв:', err);
+    MODELS = {
+      'gpt-4.1':         { name: 'GPT-4.1',         in: 2.00, out: 8.00,  color: '#00d26a' },
+      'gpt-4o-mini':     { name: 'GPT-4o mini',     in: 0.15, out: 0.60,  color: '#00d26a' },
+      'claude-sonnet-5': { name: 'Claude Sonnet 5', in: 2.00, out: 10.00, color: '#d97757' },
+      'claude-opus-5':   { name: 'Claude Opus 5',   in: 5.00, out: 25.00, color: '#d97757' },
+      'gemini-2.5-pro':  { name: 'Gemini 2.5 Pro',  in: 1.25, out: 10.00, color: '#4285f4' },
+      'deepseek-v4':     { name: 'DeepSeek V4',     in: 0.22, out: 0.66,  color: '#5b6ee1' },
+    };
+    const badge = document.getElementById('updatedText');
+    if (badge) badge.textContent = 'Цены: резервные данные';
+  }
+}
+
+const $ = id => document.getElementById(id);
+
+function fmtUsd(v) {
+  if (v === 0) return '$0';
+  if (v < 0.0001) return '$' + v.toFixed(6);
+  if (v < 0.01) return '$' + v.toFixed(5);
+  if (v < 1) return '$' + v.toFixed(4);
+  if (v < 100) return '$' + v.toFixed(3);
+  return '$' + v.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+}
+function fmtRub(v) {
+  if (v < 0.01) return '≈ ' + v.toFixed(4) + ' ₽';
+  if (v < 1) return '≈ ' + v.toFixed(3) + ' ₽';
+  if (v < 100) return '≈ ' + v.toFixed(2) + ' ₽';
+  return '≈ ' + Math.round(v).toLocaleString('ru-RU') + ' ₽';
+}
+function vibrate(ms) { if (navigator.vibrate) navigator.vibrate(ms); }
+
+function tween(el, from, to, formatter, duration = 350) {
+  const start = performance.now();
+  const diff = to - from;
+  if (Math.abs(diff) < 0.000001) { el.textContent = formatter(to); return; }
+  function tick(now) {
+    const t = Math.min((now - start) / duration, 1);
+    const eased = 1 - Math.pow(1 - t, 3);
+    el.textContent = formatter(from + diff * eased);
+    if (t < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
+const PRESETS = [
+  { emoji: '💬', label: 'Вопрос',  in: 50,   out: 200 },
+  { emoji: '✉️', label: 'Письмо',  in: 300,  out: 800 },
+  { emoji: '📄', label: 'Статья',  in: 2000, out: 3000 },
+  { emoji: '💻', label: 'Код',     in: 5000, out: 1500 },
+  { emoji: '🌐', label: 'Перевод', in: 1000, out: 1200 },
+  { emoji: '📊', label: 'Анализ',  in: 8000, out: 500 },
+];
+
+const state = {
+  model: 'gpt-4.1',
+  inTokens: 1500,
+  outTokens: 500,
+  perDay: 100,
+  budget: 10,
+  revModel: 'gpt-4.1',
+  revSize: 2000,
+  revRatio: 0.75,
+};
+
+function renderModels(gridId, activeKey, onClick) {
+  const grid = $(gridId);
+  if (!grid) return;
+  grid.innerHTML = '';
+  const keys = Object.keys(MODELS);
+  if (keys.length === 0) return;
+  if (!keys.includes(activeKey)) activeKey = keys[0];
+
+  Object.entries(MODELS).forEach(([key, m]) => {
+    const chip = document.createElement('div');
+    chip.className = 'model-chip' + (activeKey === key ? ' active' : '');
+    chip.innerHTML = `
+      <span class="model-name"><span class="dot" style="background:${m.color || '#888'}"></span>${m.name}</span>
+      <span class="model-price">$${m.in} / $${m.out}</span>
+    `;
+    chip.addEventListener('click', () => { vibrate(10); onClick(key); });
+    grid.appendChild(chip);
+  });
+}
+
+let lastTotal = 0;
+
+function renderPresets() {
+  const box = $('presets');
+  box.innerHTML = '';
+  PRESETS.forEach(p => {
+    const btn = document.createElement('button');
+    btn.className = 'preset';
+    btn.innerHTML = `${p.emoji} ${p.label}`;
+    btn.addEventListener('click', () => {
+      state.inTokens = p.in; state.outTokens = p.out;
+      $('inTokens').value = p.in; $('outTokens').value = p.out;
+      $('inSlider').value = Math.min(p.in, 20000);
+      $('outSlider').value = Math.min(p.out, 20000);
+      vibrate(10);
+      box.querySelectorAll('.preset').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      update();
+    });
+    box.appendChild(btn);
+  });
+}
+
+function updateEveryday(monthly) {
+  const el = $('everydayText');
+  const icon = $('everydayBox').querySelector('.everyday-icon');
+  if (monthly < 0.5) { icon.textContent = '🪙'; el.innerHTML = `Меньше <b>чашки кофе</b> в месяц`; return; }
+  const cups = monthly / 3;
+  if (cups < 1) { icon.textContent = '☕'; el.innerHTML = `<b>${cups.toFixed(2)} чашки кофе</b> в месяц`; return; }
+  if (cups < 10) { icon.textContent = '☕'; el.innerHTML = `<b>${cups.toFixed(1)} чашек кофе</b> в месяц`; return; }
+  if (monthly < 100) { icon.textContent = '🍕'; el.innerHTML = `Как <b>${(monthly/12).toFixed(1)} пицц</b> в месяц`; return; }
+  if (monthly < 500) { icon.textContent = '📱'; el.innerHTML = `Как <b>подписка на 2 сервиса</b> в месяц`; return; }
+  icon.textContent = '💸';
+  el.innerHTML = `<b>${Math.round(monthly).toLocaleString('ru-RU')} $</b> в месяц — это уже серьёзно`;
+}
+
+function update() {
+  const m = MODELS[state.model];
+  if (!m) return;
+  const costIn  = (state.inTokens  / 1e6) * m.in;
+  const costOut = (state.outTokens / 1e6) * m.out;
+  const total   = costIn + costOut;
+  const monthly = total * state.perDay * 30;
+  const yearly  = monthly * 12;
+
+  tween($('resultValue'), lastTotal, total, fmtUsd);
+  $('resultRub').textContent = fmtRub(total * USD_TO_RUB);
+  $('resultYear').innerHTML = yearly > 0.01 ? `За год: <b>${fmtUsd(yearly)}</b>` : '';
+
+  $('legIn').textContent  = fmtUsd(costIn);
+  $('legOut').textContent = fmtUsd(costOut);
+  const pctIn = total > 0 ? (costIn / total) * 100 : 50;
+  $('barIn').style.width  = pctIn + '%';
+  $('barOut').style.width = (100 - pctIn) + '%';
+
+  $('monthlyUsd').innerHTML = fmtUsd(monthly) + ' <span>/мес</span>';
+  $('totalTokensHint').textContent = (state.inTokens + state.outTokens).toLocaleString('ru-RU') + ' токенов';
+  updateEveryday(monthly);
+
+  lastTotal = total;
+}
+
+function bindPair(numEl, sliderEl, key) {
+  numEl.addEventListener('input', () => {
+    const v = Math.max(1, parseInt(numEl.value) || 0);
+    state[key] = v;
+    if (v <= 20000) sliderEl.value = v;
+    update();
+  });
+  sliderEl.addEventListener('input', () => {
+    const v = parseInt(sliderEl.value);
+    state[key] = v; numEl.value = v; vibrate(5); update();
+  });
+}
+
+function updateReverse() {
+  const m = MODELS[state.revModel];
+  if (!m) return;
+  const inT = state.revSize * state.revRatio;
+  const outT = state.revSize * (1 - state.revRatio);
+  const perReq = (inT / 1e6) * m.in + (outT / 1e6) * m.out;
+  const count = perReq > 0 ? Math.floor(state.budget / perReq) : 0;
+
+  const el = $('revRequests');
+  const from = parseInt(el.textContent.replace(/\s/g,'')) || 0;
+  tween(el, from, count, v => Math.round(v).toLocaleString('ru-RU'));
+
+  $('revSub').textContent = `запросов по ${state.revSize.toLocaleString('ru-RU')} токенов на ${m.name}`;
+  $('revDetail').innerHTML = count > 0
+    ? `Цена 1 запроса: <b>${fmtUsd(perReq)}</b>`
+    : `Бюджета не хватает даже на 1 запрос`;
+  $('revSize').innerHTML = state.revSize.toLocaleString('ru-RU') + ' <span>токенов</span>';
+  $('revRatio').textContent = `${Math.round(state.revRatio*100)}% / ${Math.round((1-state.revRatio)*100)}%`;
+}
+
+function updateCompare() {
+  const inT = parseInt($('cmpIn').value) || 0;
+  const outT = parseInt($('cmpOut').value) || 0;
+  const rows = Object.entries(MODELS).map(([key, m]) => {
+    const cost = (inT / 1e6) * m.in + (outT / 1e6) * m.out;
+    return { key, m, cost };
+  });
+  rows.sort((a, b) => a.cost - b.cost);
+
+  const tbody = document.querySelector('#cmpTable tbody');
+  tbody.innerHTML = '';
+  rows.forEach((r, i) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="rank">${i + 1}</td>
+      <td><div class="model-cell"><span class="dot" style="background:${r.m.color}"></span>${r.m.name}</div></td>
+      <td style="text-align:right;" class="${i === 0 ? 'best' : ''}">${fmtUsd(r.cost)}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  if (rows.length) {
+    const winner = rows[0];
+    const worst = rows[rows.length - 1];
+    const diff = worst.cost / winner.cost;
+    $('cmpWinner').innerHTML = `<b>${winner.m.name}</b> — дешевле всех. Разница с ${worst.m.name}: <b>в ${diff.toFixed(1)}×</b>`;
+  }
+}
+
+function updateText() {
+  const text = $('textInput').value;
+  const chars = text.length;
+  const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+
+  let cyr = 0, lat = 0;
+  for (const c of text) {
+    if (/[а-яё]/i.test(c)) cyr++;
+    else if (/[a-z]/i.test(c)) lat++;
+  }
+  const totalLetters = cyr + lat || 1;
+  const avgCharsPerToken = (cyr / totalLetters) * 2 + (lat / totalLetters) * 4;
+  const tokens = Math.max(1, Math.round(chars / avgCharsPerToken));
+
+  $('charCount').textContent = chars.toLocaleString('ru-RU');
+  $('wordCount').textContent = words.toLocaleString('ru-RU');
+  $('tokenCount').textContent = chars ? tokens.toLocaleString('ru-RU') : '0';
+
+  const m = MODELS['gpt-4.1'];
+  if (!m) return;
+  const cost = (tokens / 1e6) * m.in;
+  $('textCost').textContent = fmtUsd(cost);
+  $('textCostRub').textContent = fmtRub(cost * USD_TO_RUB);
+}
+
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    vibrate(10);
+    const target = tab.dataset.tab;
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    $('panel-' + target).classList.add('active');
+    if (target === 'compare') updateCompare();
+    if (target === 'reverse') updateReverse();
+    if (target === 'text') updateText();
+  });
+});
+
+document.querySelectorAll('.faq-item').forEach(item => {
+  item.addEventListener('click', () => item.classList.toggle('open'));
+});
+
+document.querySelectorAll('.lang button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.lang button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+});
+
+// ============ ИНИЦИАЛИЗАЦИЯ ============
+async function init() {
+  await loadPrices();
+
+  const keys = Object.keys(MODELS);
+  state.model = keys[0] || 'gpt-4.1';
+  state.revModel = state.model;
+
+  renderModels('modelGrid', state.model, k => {
+    state.model = k;
+    renderModels('modelGrid', k, () => {});
+    update();
+  });
+  renderModels('modelGridRev', state.revModel, k => {
+    state.revModel = k;
+    renderModels('modelGridRev', k, () => {});
+    updateReverse();
+  });
+
+  renderPresets();
+  bindPair($('inTokens'),  $('inSlider'),  'inTokens');
+  bindPair($('outTokens'), $('outSlider'), 'outTokens');
+
+  $('perDaySlider').addEventListener('input', (e) => {
+    state.perDay = parseInt(e.target.value);
+    $('perDayLabel').textContent = state.perDay.toLocaleString('ru-RU') + ' запросов/день';
+    vibrate(5); update();
+  });
+
+  $('budget').addEventListener('input', (e) => { state.budget = parseFloat(e.target.value) || 0; updateReverse(); });
+  $('revSizeSlider').addEventListener('input', (e) => { state.revSize = parseInt(e.target.value); vibrate(5); updateReverse(); });
+  $('cmpIn').addEventListener('input', updateCompare);
+  $('cmpOut').addEventListener('input', updateCompare);
+  $('textInput').addEventListener('input', updateText);
+
+  $('copyBtn').addEventListener('click', async () => {
+    const m = MODELS[state.model];
+    if (!m) return;
+    const costIn  = (state.inTokens  / 1e6) * m.in;
+    const costOut = (state.outTokens / 1e6) * m.out;
+    const total   = costIn + costOut;
+    const text = `${m.name}: ${state.inTokens} → ${state.outTokens} токенов = ${fmtUsd(total)} (${fmtRub(total * USD_TO_RUB)})`;
+    try {
+      await navigator.clipboard.writeText(text);
+      $('copyText').textContent = 'Скопировано!';
+      $('copyBtn').classList.add('copied');
+      vibrate(20);
+      setTimeout(() => {
+        $('copyText').textContent = 'Скопировать';
+        $('copyBtn').classList.remove('copied');
+      }, 1600);
+    } catch(e) {}
+  });
+
+  update();
+  updateCompare();
+  updateReverse();
+}
+
+init();
+</script>
+</body>
+</html>
