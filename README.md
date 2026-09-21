@@ -2,7 +2,6 @@
 
 **Калькулятор стоимости запросов к нейросетям. Цены обновляются автоматически.**
 
-![AI Cost Calculator](https://xecl1psex.github.io/ai-cost-calculator/)
 
 ## 📖 О проекте
 
@@ -23,7 +22,7 @@ AI Cost Calculator — это веб-приложение для точного 
 
 ### Онлайн-версия
 
-Просто откройте сайт: [AI Cost Calculator](https://xec11psex.github.io/ai-cost-calculator/)
+Просто откройте сайт: [AI Cost Calculator](https://xecl1psex.github.io/ai-cost-calculator/)
 
 ### Локальный запуск
 
