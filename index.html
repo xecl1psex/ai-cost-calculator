@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AI Cost Calculator — калькулятор стоимости запросов к ИИ</title>
 <meta name="description" content="Узнай, сколько стоит твой запрос к GPT-4.1, Claude, Gemini или DeepSeek. Цены обновляются автоматически каждый день.">
 <meta name="keywords" content="стоимость токенов, цена GPT-4, цена Claude, цена Gemini, калькулятор API, AI cost calculator">
@@ -299,9 +299,93 @@
     font-size: 10px; color: var(--muted); font-weight: 600;
     background: rgba(0,0,0,0.3); padding: 4px 8px;
     border-radius: 100px; border: 1px solid var(--border);
-    margin-bottom: 10px;
   }
   .updated-badge .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
+
+  /* ============= DESKTOP ============= */
+  @media (min-width: 900px) {
+    body { padding: 24px; padding-bottom: 40px; }
+    .container { max-width: 1180px; }
+
+    header { padding: 14px 22px; margin-bottom: 22px; border-radius: 20px; }
+    .logo { font-size: 15px; }
+    .logo-dot { width: 9px; height: 9px; }
+    .lang button { padding: 7px 16px; font-size: 12px; }
+
+    .tabs { padding: 6px; gap: 8px; margin-bottom: 22px; }
+    .tab {
+      font-size: 14px; padding: 14px 12px;
+      flex-direction: row; gap: 8px;
+    }
+    .tab svg { width: 16px; height: 16px; }
+
+    /* Каждая вкладка — двухколоночный layout */
+    .panel.active {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+      gap: 20px;
+      align-items: start;
+    }
+
+    /* Правая колонка — sticky */
+    .col-right {
+      position: sticky;
+      top: 24px;
+    }
+
+    .card { padding: 22px; border-radius: 20px; margin-bottom: 14px; }
+    .field-label { font-size: 12px; margin-bottom: 12px; }
+    .field-label svg { width: 15px; height: 15px; }
+
+    .model-grid { grid-template-columns: repeat(2, 1fr); gap: 9px; }
+    .model-chip { padding: 14px 16px; border-radius: 14px; }
+    .model-name { font-size: 13px; margin-bottom: 5px; }
+    .model-price { font-size: 11px; }
+
+    input[type="number"], input[type="text"] { font-size: 20px; padding: 16px; }
+    input[type="range"] { height: 5px; margin: 8px 0 4px; }
+    input[type="range"]::-webkit-slider-thumb { width: 22px; height: 22px; }
+    input[type="range"]::-moz-range-thumb { width: 22px; height: 22px; }
+    .range-scale { font-size: 11px; }
+
+    .result { padding: 32px 24px; border-radius: 20px; margin-bottom: 14px; }
+    .result-value { font-size: 68px; letter-spacing: -2.5px; margin-bottom: 8px; }
+    .result-label { font-size: 11px; margin-bottom: 14px; }
+    .result-sub { font-size: 14px; margin-bottom: 20px; }
+    .result-year { font-size: 13px; margin-bottom: 20px; }
+    .compare-bar { height: 8px; margin-bottom: 10px; }
+    .compare-legend { font-size: 12px; }
+
+    .everyday { padding: 18px; border-radius: 18px; gap: 16px; }
+    .everyday-icon { font-size: 34px; }
+    .everyday-text { font-size: 14px; }
+
+    .monthly { padding: 18px; border-radius: 18px; }
+    .monthly-value { font-size: 26px; }
+    .monthly-title { font-size: 12px; }
+
+    .btn { padding: 18px; font-size: 15px; border-radius: 16px; }
+
+    .cmp-table { font-size: 14px; }
+    .cmp-table th { padding: 12px 6px; font-size: 11px; }
+    .cmp-table td { padding: 14px 6px; }
+    .cmp-table .rank { width: 30px; }
+
+    /* FAQ — 2 колонки */
+    .faq-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .faq-item { margin-bottom: 0; padding: 18px; }
+    .faq-q { font-size: 14px; }
+    .faq-a { font-size: 13px; }
+
+    .section-title { font-size: 14px; margin: 32px 0 14px; }
+    footer { margin-top: 32px; font-size: 12px; }
+  }
+
+  /* Очень широкие экраны */
+  @media (min-width: 1300px) {
+    .container { max-width: 1280px; }
+    .panel.active { grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr); gap: 24px; }
+  }
 </style>
 </head>
 <body>
@@ -334,209 +418,231 @@
     </button>
   </div>
 
+  <!-- ============ PANEL 1: CALC ============ -->
   <div class="panel active" id="panel-calc">
-    <div class="card">
-      <div class="field-label">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-        Модель
-      </div>
-      <div class="model-grid" id="modelGrid"></div>
-      <div class="updated-badge" id="updatedBadge" style="margin-top:12px;margin-bottom:0;">
-        <span class="dot"></span><span id="updatedText">Загрузка цен...</span>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="field-label">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-        Размер запроса
-        <span class="hint" id="totalTokensHint">2000 токенов</span>
+    <div class="col-left">
+      <div class="card">
+        <div class="field-label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          Модель
+        </div>
+        <div class="model-grid" id="modelGrid"></div>
+        <div class="updated-badge" style="margin-top:14px;">
+          <span class="dot"></span><span id="updatedText">Загрузка цен...</span>
+        </div>
       </div>
 
-      <div class="presets" id="presets"></div>
+      <div class="card">
+        <div class="field-label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          Размер запроса
+          <span class="hint" id="totalTokensHint">2000 токенов</span>
+        </div>
 
-      <div style="font-size:11px;color:var(--muted);margin-bottom:6px;font-weight:700;">ПРОМПТ (ВХОД)</div>
-      <div class="input-wrap">
-        <input type="number" id="inTokens" value="1500" inputmode="numeric" min="1">
-        <span class="input-unit">ТОКЕНОВ</span>
-      </div>
-      <input type="range" id="inSlider" min="50" max="20000" step="50" value="1500">
-      <div class="range-scale"><span>50</span><span>20K</span></div>
+        <div class="presets" id="presets"></div>
 
-      <div style="font-size:11px;color:var(--muted);margin:12px 0 6px;font-weight:700;">ОТВЕТ (ВЫХОД)</div>
-      <div class="input-wrap">
-        <input type="number" id="outTokens" value="500" inputmode="numeric" min="1">
-        <span class="input-unit">ТОКЕНОВ</span>
-      </div>
-      <input type="range" id="outSlider" min="50" max="20000" step="50" value="500">
-      <div class="range-scale"><span>50</span><span>20K</span></div>
-    </div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:6px;font-weight:700;">ПРОМПТ (ВХОД)</div>
+        <div class="input-wrap">
+          <input type="number" id="inTokens" value="1500" inputmode="numeric" min="1">
+          <span class="input-unit">ТОКЕНОВ</span>
+        </div>
+        <input type="range" id="inSlider" min="50" max="20000" step="50" value="1500">
+        <div class="range-scale"><span>50</span><span>20K</span></div>
 
-    <div class="result" id="resultCard">
-      <div class="result-label">Стоимость запроса</div>
-      <div class="result-value" id="resultValue">$0.00</div>
-      <div class="result-sub" id="resultRub">≈ 0 ₽</div>
-      <div class="result-year" id="resultYear"></div>
-
-      <div class="compare-bar">
-        <div class="compare-seg in" id="barIn"></div>
-        <div class="compare-seg out" id="barOut"></div>
-      </div>
-      <div class="compare-legend">
-        <div class="legend-item"><span class="legend-dot" style="background:var(--accent)"></span>Вход <b id="legIn">$0</b></div>
-        <div class="legend-item"><span class="legend-dot" style="background:var(--accent2)"></span>Выход <b id="legOut">$0</b></div>
+        <div style="font-size:11px;color:var(--muted);margin:14px 0 6px;font-weight:700;">ОТВЕТ (ВЫХОД)</div>
+        <div class="input-wrap">
+          <input type="number" id="outTokens" value="500" inputmode="numeric" min="1">
+          <span class="input-unit">ТОКЕНОВ</span>
+        </div>
+        <input type="range" id="outSlider" min="50" max="20000" step="50" value="500">
+        <div class="range-scale"><span>50</span><span>20K</span></div>
       </div>
     </div>
 
-    <div class="everyday" id="everydayBox">
-      <div class="everyday-icon">☕</div>
-      <div class="everyday-text" id="everydayText">Введи токены, чтобы увидеть сравнение</div>
-    </div>
+    <div class="col-right">
+      <div class="result" id="resultCard">
+        <div class="result-label">Стоимость запроса</div>
+        <div class="result-value" id="resultValue">$0.00</div>
+        <div class="result-sub" id="resultRub">≈ 0 ₽</div>
+        <div class="result-year" id="resultYear"></div>
 
-    <div class="monthly">
-      <div class="monthly-head">
-        <div class="monthly-title">При таком темпе</div>
-        <div class="monthly-value" id="monthlyUsd">$0 <span>/мес</span></div>
+        <div class="compare-bar">
+          <div class="compare-seg in" id="barIn"></div>
+          <div class="compare-seg out" id="barOut"></div>
+        </div>
+        <div class="compare-legend">
+          <div class="legend-item"><span class="legend-dot" style="background:var(--accent)"></span>Вход <b id="legIn">$0</b></div>
+          <div class="legend-item"><span class="legend-dot" style="background:var(--accent2)"></span>Выход <b id="legOut">$0</b></div>
+        </div>
       </div>
-      <input type="range" id="perDaySlider" min="1" max="5000" step="1" value="100">
-      <div class="range-scale">
-        <span>1</span>
-        <span id="perDayLabel">100 запросов/день</span>
-        <span>5000</span>
+
+      <button class="btn" id="copyBtn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+        <span id="copyText">Скопировать</span>
+      </button>
+
+      <div class="everyday" id="everydayBox">
+        <div class="everyday-icon">☕</div>
+        <div class="everyday-text" id="everydayText">Введи токены, чтобы увидеть сравнение</div>
+      </div>
+
+      <div class="monthly">
+        <div class="monthly-head">
+          <div class="monthly-title">При таком темпе</div>
+          <div class="monthly-value" id="monthlyUsd">$0 <span>/мес</span></div>
+        </div>
+        <input type="range" id="perDaySlider" min="1" max="5000" step="1" value="100">
+        <div class="range-scale">
+          <span>1</span>
+          <span id="perDayLabel">100 запросов/день</span>
+          <span>5000</span>
+        </div>
       </div>
     </div>
-
-    <button class="btn" id="copyBtn">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-      <span id="copyText">Скопировать</span>
-    </button>
   </div>
 
+  <!-- ============ PANEL 2: REVERSE ============ -->
   <div class="panel" id="panel-reverse">
-    <div class="card">
-      <div class="field-label">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-        Сколько могу купить за бюджет
-      </div>
-      <div class="input-wrap" style="margin-bottom:8px;">
-        <input type="number" id="budget" value="10" inputmode="decimal" step="0.01">
-        <span class="input-unit">USD</span>
-      </div>
-      <div style="font-size:11px;color:var(--muted);margin-bottom:10px;">Бюджет в долларах</div>
+    <div class="col-left">
+      <div class="card">
+        <div class="field-label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          Бюджет в долларах
+        </div>
+        <div class="input-wrap" style="margin-bottom:10px;">
+          <input type="number" id="budget" value="10" inputmode="decimal" step="0.01">
+          <span class="input-unit">USD</span>
+        </div>
 
-      <div class="field-label" style="margin-top:8px;">Модель</div>
-      <div class="model-grid" id="modelGridRev"></div>
+        <div class="field-label" style="margin-top:8px;">Модель</div>
+        <div class="model-grid" id="modelGridRev"></div>
+      </div>
+
+      <div class="monthly">
+        <div class="monthly-head">
+          <div class="monthly-title">Размер одного запроса</div>
+          <div class="monthly-value" id="revSize">2000 <span>токенов</span></div>
+        </div>
+        <input type="range" id="revSizeSlider" min="200" max="20000" step="100" value="2000">
+        <div class="range-scale"><span>200</span><span>20K</span></div>
+        <div style="font-size:11px;color:var(--muted);margin-top:10px;line-height:1.5;">
+          Соотношение вход/выход: <b id="revRatio">75% / 25%</b>
+        </div>
+      </div>
     </div>
 
-    <div class="result">
-      <div class="result-label">За этот бюджет можно сделать</div>
-      <div class="result-value" id="revRequests">0</div>
-      <div class="result-sub" id="revSub">запросов среднего размера</div>
-      <div class="result-year" id="revDetail">—</div>
-    </div>
-
-    <div class="monthly" style="margin-bottom:10px;">
-      <div class="monthly-head">
-        <div class="monthly-title">Размер одного запроса</div>
-        <div class="monthly-value" id="revSize">2000 <span>токенов</span></div>
-      </div>
-      <input type="range" id="revSizeSlider" min="200" max="20000" step="100" value="2000">
-      <div class="range-scale"><span>200</span><span>20K</span></div>
-      <div style="font-size:11px;color:var(--muted);margin-top:8px;line-height:1.5;">
-        Соотношение вход/выход: <b id="revRatio">75% / 25%</b>
+    <div class="col-right">
+      <div class="result">
+        <div class="result-label">За этот бюджет можно сделать</div>
+        <div class="result-value" id="revRequests">0</div>
+        <div class="result-sub" id="revSub">запросов среднего размера</div>
+        <div class="result-year" id="revDetail">—</div>
       </div>
     </div>
   </div>
 
+  <!-- ============ PANEL 3: COMPARE ============ -->
   <div class="panel" id="panel-compare">
-    <div class="card">
-      <div class="field-label">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20"/></svg>
-        Сравнение на одинаковой задаче
-      </div>
-      <div style="display:flex;gap:8px;">
-        <div style="flex:1;">
-          <div style="font-size:10px;color:var(--muted);margin-bottom:4px;font-weight:700;">ВХОД</div>
-          <input type="number" id="cmpIn" value="2000" inputmode="numeric" style="font-size:14px;padding:10px;">
+    <div class="col-left">
+      <div class="card">
+        <div class="field-label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20"/></svg>
+          Сравнение на одинаковой задаче
         </div>
-        <div style="flex:1;">
-          <div style="font-size:10px;color:var(--muted);margin-bottom:4px;font-weight:700;">ВЫХОД</div>
-          <input type="number" id="cmpOut" value="1000" inputmode="numeric" style="font-size:14px;padding:10px;">
+        <div style="display:flex;gap:10px;">
+          <div style="flex:1;">
+            <div style="font-size:10px;color:var(--muted);margin-bottom:6px;font-weight:700;">ВХОД</div>
+            <input type="number" id="cmpIn" value="2000" inputmode="numeric">
+          </div>
+          <div style="flex:1;">
+            <div style="font-size:10px;color:var(--muted);margin-bottom:6px;font-weight:700;">ВЫХОД</div>
+            <input type="number" id="cmpOut" value="1000" inputmode="numeric">
+          </div>
         </div>
       </div>
     </div>
 
-    <div class="card">
-      <table class="cmp-table" id="cmpTable">
-        <thead>
-          <tr>
-            <th class="rank">#</th>
-            <th>Модель</th>
-            <th style="text-align:right;">Цена</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
+    <div class="col-right">
+      <div class="card">
+        <table class="cmp-table" id="cmpTable">
+          <thead>
+            <tr>
+              <th class="rank">#</th>
+              <th>Модель</th>
+              <th style="text-align:right;">Цена</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
 
-    <div class="everyday">
-      <div class="everyday-icon">🏆</div>
-      <div class="everyday-text" id="cmpWinner">Заполняй — увидим победителя</div>
+      <div class="everyday">
+        <div class="everyday-icon">🏆</div>
+        <div class="everyday-text" id="cmpWinner">Заполняй — увидим победителя</div>
+      </div>
     </div>
   </div>
 
+  <!-- ============ PANEL 4: TEXT ============ -->
   <div class="panel" id="panel-text">
-    <div class="card">
-      <div class="field-label">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
-        Вставь текст — узнаешь размер
-      </div>
-      <textarea id="textInput" placeholder="Вставь сюда любой текст — я посчитаю, сколько это токенов..."></textarea>
-      <div style="display:flex;gap:8px;margin-top:10px;">
-        <div style="flex:1;background:rgba(0,0,0,0.3);border-radius:12px;padding:12px;text-align:center;">
-          <div style="font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Символов</div>
-          <div style="font-size:20px;font-weight:800;font-variant-numeric:tabular-nums;" id="charCount">0</div>
+    <div class="col-left">
+      <div class="card">
+        <div class="field-label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
+          Вставь текст — узнаешь размер
         </div>
-        <div style="flex:1;background:rgba(0,0,0,0.3);border-radius:12px;padding:12px;text-align:center;">
-          <div style="font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Слов</div>
-          <div style="font-size:20px;font-weight:800;font-variant-numeric:tabular-nums;" id="wordCount">0</div>
-        </div>
-        <div style="flex:1;background:rgba(0,255,163,0.08);border:1px solid rgba(0,255,163,0.2);border-radius:12px;padding:12px;text-align:center;">
-          <div style="font-size:10px;color:var(--accent);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">≈ Токенов</div>
-          <div style="font-size:20px;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums;" id="tokenCount">0</div>
+        <textarea id="textInput" placeholder="Вставь сюда любой текст — я посчитаю, сколько это токенов..."></textarea>
+        <div style="display:flex;gap:8px;margin-top:12px;">
+          <div style="flex:1;background:rgba(0,0,0,0.3);border-radius:12px;padding:12px;text-align:center;">
+            <div style="font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Символов</div>
+            <div style="font-size:20px;font-weight:800;font-variant-numeric:tabular-nums;" id="charCount">0</div>
+          </div>
+          <div style="flex:1;background:rgba(0,0,0,0.3);border-radius:12px;padding:12px;text-align:center;">
+            <div style="font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Слов</div>
+            <div style="font-size:20px;font-weight:800;font-variant-numeric:tabular-nums;" id="wordCount">0</div>
+          </div>
+          <div style="flex:1;background:rgba(0,255,163,0.08);border:1px solid rgba(0,255,163,0.2);border-radius:12px;padding:12px;text-align:center;">
+            <div style="font-size:10px;color:var(--accent);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">≈ Токенов</div>
+            <div style="font-size:20px;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums;" id="tokenCount">0</div>
+          </div>
         </div>
       </div>
     </div>
 
-    <div class="result" style="margin-bottom:10px;">
-      <div class="result-label">Стоимость этого текста на GPT-4.1</div>
-      <div class="result-value" id="textCost">$0</div>
-      <div class="result-sub" id="textCostRub">≈ 0 ₽</div>
-    </div>
+    <div class="col-right">
+      <div class="result">
+        <div class="result-label">Стоимость этого текста на GPT-4.1</div>
+        <div class="result-value" id="textCost">$0</div>
+        <div class="result-sub" id="textCostRub">≈ 0 ₽</div>
+      </div>
 
-    <div class="card">
-      <div style="font-size:12px;color:var(--muted);line-height:1.6;">
-        💡 <b style="color:var(--text)">Как считается:</b> для русского текста ≈ 2 символа на токен, для английского ≈ 4 символа на токен. Среднее значение используется автоматически.
+      <div class="card">
+        <div style="font-size:13px;color:var(--muted);line-height:1.7;">
+          💡 <b style="color:var(--text)">Как считается:</b> для русского текста ≈ 2 символа на токен, для английского ≈ 4 символа на токен. Среднее значение используется автоматически.
+        </div>
       </div>
     </div>
   </div>
 
+  <!-- ============ FAQ ============ -->
   <div class="section-title">Вопросы</div>
-  <div class="faq-item open">
-    <div class="faq-q">Что такое токен? <span class="faq-toggle">+</span></div>
-    <div class="faq-a">Токен — часть слова. ~1000 токенов ≈ 750 слов на английском или ~500 слов на русском.</div>
-  </div>
-  <div class="faq-item">
-    <div class="faq-q">Почему выход дороже? <span class="faq-toggle">+</span></div>
-    <div class="faq-a">Модели генерируют ответ по одному токену, каждый требует вычислений. Промпт обрабатывается параллельно, поэтому дешевле в 3–5 раз.</div>
-  </div>
-  <div class="faq-item">
-    <div class="faq-q">Цены актуальны? <span class="faq-toggle">+</span></div>
-    <div class="faq-a">Да, данные обновляются автоматически каждый день с официальных страниц провайдеров через публичную базу LiteLLM.</div>
-  </div>
-  <div class="faq-item">
-    <div class="faq-q">Как сэкономить? <span class="faq-toggle">+</span></div>
-    <div class="faq-a">Используй кэширование промптов (в 10–30× дешевле), Batch API (скидка 50%), и выбирай mini/flash версии моделей для простых задач.</div>
+  <div class="faq-grid">
+    <div class="faq-item open">
+      <div class="faq-q">Что такое токен? <span class="faq-toggle">+</span></div>
+      <div class="faq-a">Токен — часть слова. ~1000 токенов ≈ 750 слов на английском или ~500 слов на русском.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Почему выход дороже? <span class="faq-toggle">+</span></div>
+      <div class="faq-a">Модели генерируют ответ по одному токену, каждый требует вычислений. Промпт обрабатывается параллельно, поэтому дешевле в 3–5 раз.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Цены актуальны? <span class="faq-toggle">+</span></div>
+      <div class="faq-a">Да, данные обновляются автоматически каждый день с публичной базы LiteLLM.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Как сэкономить? <span class="faq-toggle">+</span></div>
+      <div class="faq-a">Используй кэширование промптов (в 10–30× дешевле), Batch API (скидка 50%), и выбирай mini/flash версии для простых задач.</div>
+    </div>
   </div>
 
   <footer>
@@ -548,7 +654,6 @@
 // ============ ЗАГРУЗКА ЦЕН ============
 let MODELS = {};
 let USD_TO_RUB = 92;
-let pricesLoaded = false;
 
 async function loadPrices() {
   try {
@@ -563,11 +668,9 @@ async function loadPrices() {
       const d = new Date(data.updated);
       badge.textContent = 'Цены обновлены: ' + d.toLocaleDateString('ru-RU');
     }
-
-    pricesLoaded = true;
-    console.log('Цены загружены:', Object.keys(MODELS).length, 'моделей');
+    console.log('Цены загружены:', Object.keys(MODELS).length);
   } catch (err) {
-    console.error('Не удалось загрузить prices.json, использую резерв:', err);
+    console.error('Fallback:', err);
     MODELS = {
       'gpt-4.1':         { name: 'GPT-4.1',         in: 2.00, out: 8.00,  color: '#00d26a' },
       'gpt-4o-mini':     { name: 'GPT-4o mini',     in: 0.15, out: 0.60,  color: '#00d26a' },
@@ -812,6 +915,7 @@ document.querySelectorAll('.tab').forEach(tab => {
     if (target === 'compare') updateCompare();
     if (target === 'reverse') updateReverse();
     if (target === 'text') updateText();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 });
 
