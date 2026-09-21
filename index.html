@@ -1355,8 +1355,8 @@ function applyLanguage(lang) {
   });
   localStorage.setItem('lang', lang);
   renderPresets();
-  renderModels('modelGrid', state.model, k => { state.model = k; renderModels('modelGrid', k, ()=>{}); update(); });
-  renderModels('modelGridRev', state.revModel, k => { state.revModel = k; renderModels('modelGridRev', k, ()=>{}); updateReverse(); });
+  renderModels('modelGrid', state.model);
+  renderModels('modelGridRev', state.revModel);
   updateCompare();
   update();
   updateReverse();
@@ -1433,7 +1433,7 @@ function tween(el, from, to, formatter, duration = 250) {
   requestAnimationFrame(tick);
 }
 
-function renderModels(gridId, activeKey, onClick) {
+function renderModels(gridId, activeKey) {
   const grid = $(gridId);
   if (!grid) return;
   grid.innerHTML = '';
@@ -1444,13 +1444,30 @@ function renderModels(gridId, activeKey, onClick) {
   Object.entries(MODELS).forEach(([key, m]) => {
     const chip = document.createElement('div');
     chip.className = 'model-chip' + (activeKey === key ? ' active' : '');
+    chip.dataset.modelKey = key;
     chip.innerHTML = `
       <span class="model-name"><span class="model-dot" style="background:${m.color || '#888'}"></span>${m.name}</span>
       <span class="model-price">$${m.in} / $${m.out}</span>
     `;
-    chip.addEventListener('click', () => { vibrate(8); onClick(key); });
+    chip.addEventListener('click', () => handleModelClick(gridId, key));
     grid.appendChild(chip);
   });
+}
+
+function handleModelClick(gridId, key) {
+  vibrate(8);
+  const grid = $(gridId);
+  if (!grid) return;
+  grid.querySelectorAll('.model-chip').forEach(c => {
+    c.classList.toggle('active', c.dataset.modelKey === key);
+  });
+  if (gridId === 'modelGrid') {
+    state.model = key;
+    update();
+  } else if (gridId === 'modelGridRev') {
+    state.revModel = key;
+    updateReverse();
+  }
 }
 
 let lastTotal = 0;
@@ -1657,16 +1674,8 @@ async function init() {
   state.model = keys[0] || 'gpt-4.1';
   state.revModel = state.model;
 
-  renderModels('modelGrid', state.model, k => {
-    state.model = k;
-    renderModels('modelGrid', k, () => {});
-    update();
-  });
-  renderModels('modelGridRev', state.revModel, k => {
-    state.revModel = k;
-    renderModels('modelGridRev', k, () => {});
-    updateReverse();
-  });
+  renderModels('modelGrid', state.model);
+  renderModels('modelGridRev', state.revModel);
 
   bindPair($('inTokens'),  $('inSlider'),  'inTokens');
   bindPair($('outTokens'), $('outSlider'), 'outTokens');
