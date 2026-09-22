@@ -1,42 +1,20 @@
 {
-  "updated": "2026-09-22T10:34:21.548Z",
+  "updated": "2026-09-22T00:00:00Z",
   "usd_to_rub": 92,
   "models": {
-    "gpt-4.1": {
-      "name": "GPT-4.1",
-      "in": 2,
-      "out": 8,
-      "color": "#00d26a"
-    },
-    "gpt-4o-mini": {
-      "name": "GPT-4o mini",
-      "in": 0.15,
-      "out": 0.6,
-      "color": "#00d26a"
-    },
-    "claude-sonnet-5": {
-      "name": "Claude Sonnet 5",
-      "in": 3,
-      "out": 15,
-      "color": "#d97757"
-    },
-    "claude-opus-5": {
-      "name": "Claude Opus 5",
-      "in": 5,
-      "out": 25,
-      "color": "#d97757"
-    },
-    "gemini-2.5-pro": {
-      "name": "Gemini 2.5 Pro",
-      "in": 1.25,
-      "out": 10,
-      "color": "#4285f4"
-    },
-    "deepseek-v4": {
-      "name": "DeepSeek V4",
-      "in": 0.28,
-      "out": 0.42,
-      "color": "#5b6ee1"
-    }
+    "gpt-5.6-sol":      { "name": "GPT-5.6 Sol",      "in": 4.00,  "out": 20.00, "color": "#10a37f" },
+    "gpt-5.6-terra":    { "name": "GPT-5.6 Terra",    "in": 2.00,  "out": 12.00, "color": "#10a37f" },
+    "gpt-5.6-luna":     { "name": "GPT-5.6 Luna",     "in": 0.20,  "out": 1.20,  "color": "#10a37f" },
+    "gpt-5.5":          { "name": "GPT-5.5",          "in": 5.00,  "out": 30.00, "color": "#10a37f" },
+    "claude-fable-5.1": { "name": "Claude Fable 5.1", "in": 10.00, "out": 50.00, "color": "#d97757" },
+    "claude-opus-5":    { "name": "Claude Opus 5",    "in": 5.00,  "out": 25.00, "color": "#d97757" },
+    "claude-sonnet-5":  { "name": "Claude Sonnet 5",  "in": 3.00,  "out": 15.00, "color": "#d97757" },
+    "claude-haiku-4.5": { "name": "Claude Haiku 4.5", "in": 1.00,  "out": 5.00,  "color": "#d97757" },
+    "gemini-3.1-pro":   { "name": "Gemini 3.1 Pro",   "in": 2.00,  "out": 12.00, "color": "#4285f4" },
+    "gemini-3.5-flash": { "name": "Gemini 3.5 Flash", "in": 1.50,  "out": 9.00,  "color": "#4285f4" },
+    "gemini-3.1-flash-lite": { "name": "Gemini 3.1 Flash-Lite", "in": 0.25, "out": 1.50, "color": "#4285f4" },
+    "deepseek-v4-pro":  { "name": "DeepSeek V4 Pro",  "in": 1.65,  "out": 3.30,  "color": "#5b6ee1" },
+    "deepseek-v4-flash": { "name": "DeepSeek V4 Flash", "in": 0.20, "out": 0.40, "color": "#5b6ee1" },
+    "deepseek-v3.2":    { "name": "DeepSeek V3.2",    "in": 0.57,  "out": 1.71,  "color": "#5b6ee1" }
   }
 }
