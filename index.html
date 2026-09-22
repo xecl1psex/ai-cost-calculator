@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AI Cost Calculator — стоимость запросов к нейросетям</title>
-<meta name="description" content="Калькулятор стоимости запросов к GPT-5.6, Claude, Gemini и DeepSeek. Цены обновляются автоматически каждый день. Рассчитай бюджет на API.">
+<meta name="description" content="Калькулятор стоимости запросов к GPT-5.6, Claude, Gemini и DeepSeek. Цены обновляются автоматически каждый день.">
 <meta name="theme-color" content="#fafafa" id="themeColor">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%235e6ad2'/><text x='50' y='68' font-family='system-ui' font-size='60' font-weight='700' text-anchor='middle' fill='white'>A</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -12,366 +12,185 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
   :root {
-    --bg: #fafafa;
-    --panel: #ffffff;
-    --panel-2: #f5f5f5;
-    --border: #eaeaea;
-    --border-strong: #d4d4d4;
-    --text: #111111;
-    --text-2: #666666;
-    --text-3: #999999;
-    --accent: #5e6ad2;
-    --accent-hover: #4c56b8;
-    --accent-bg: #eef0fb;
-    --hover: #f5f5f5;
-    --success: #16a34a;
-    --shadow: 0 1px 2px rgba(0,0,0,0.04);
+    --bg: #fafafa; --panel: #ffffff; --panel-2: #f5f5f5;
+    --border: #eaeaea; --border-strong: #d4d4d4;
+    --text: #111111; --text-2: #666666; --text-3: #999999;
+    --accent: #5e6ad2; --accent-hover: #4c56b8; --accent-bg: #eef0fb;
+    --hover: #f5f5f5; --success: #16a34a;
   }
-
   [data-theme="dark"] {
-    --bg: #0d0d0d;
-    --panel: #161616;
-    --panel-2: #1f1f1f;
-    --border: #262626;
-    --border-strong: #3a3a3a;
-    --text: #f5f5f5;
-    --text-2: #a0a0a0;
-    --text-3: #666666;
-    --accent: #7c87e0;
-    --accent-hover: #8f99e5;
-    --accent-bg: #1a1d35;
-    --hover: #1f1f1f;
-    --success: #4ade80;
-    --shadow: 0 1px 2px rgba(0,0,0,0.4);
+    --bg: #0d0d0d; --panel: #161616; --panel-2: #1f1f1f;
+    --border: #262626; --border-strong: #3a3a3a;
+    --text: #f5f5f5; --text-2: #a0a0a0; --text-3: #666666;
+    --accent: #7c87e0; --accent-hover: #8f99e5; --accent-bg: #1a1d35;
+    --hover: #1f1f1f; --success: #4ade80;
   }
-
   html { -webkit-text-size-adjust: 100%; }
   body {
-    background: var(--bg);
-    color: var(--text);
+    background: var(--bg); color: var(--text);
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    font-size: 14px;
-    line-height: 1.5;
-    padding: 16px;
-    padding-bottom: 48px;
+    font-size: 14px; line-height: 1.5;
+    padding: 16px; padding-bottom: 48px;
     min-height: 100vh;
-    font-feature-settings: 'cv02','cv03','cv04','cv11';
     transition: background-color 0.2s, color 0.2s;
   }
-
   .num { font-family: 'JetBrains Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
-
   .container { max-width: 480px; margin: 0 auto; }
 
-  /* ============ HEADER ============ */
   header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 4px 0 20px;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 20px;
-    gap: 8px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 4px 0 20px; border-bottom: 1px solid var(--border);
+    margin-bottom: 20px; gap: 8px;
   }
-  .logo {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 14px;
-    font-weight: 600;
-    letter-spacing: -0.01em;
-    flex-shrink: 0;
-  }
+  .logo { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; flex-shrink: 0; }
   .logo-mark {
-    width: 22px;
-    height: 22px;
-    background: var(--accent);
-    border-radius: 5px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    font-weight: 700;
-    font-size: 12px;
+    width: 22px; height: 22px; background: var(--accent); border-radius: 5px;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-weight: 700; font-size: 12px;
     font-family: 'JetBrains Mono', monospace;
   }
-  .header-controls {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
+  .header-controls { display: flex; align-items: center; gap: 6px; }
   .icon-btn {
-    background: transparent;
-    border: 1px solid var(--border);
-    color: var(--text-2);
-    width: 30px;
-    height: 30px;
-    border-radius: 6px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.12s;
-    padding: 0;
-    font-family: inherit;
+    background: transparent; border: 1px solid var(--border); color: var(--text-2);
+    width: 30px; height: 30px; border-radius: 6px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.12s; padding: 0; font-family: inherit;
   }
   .icon-btn:hover { background: var(--hover); color: var(--text); border-color: var(--border-strong); }
   .icon-btn svg { width: 14px; height: 14px; }
-
   .lang-switch {
-    display: flex;
-    background: transparent;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    height: 30px;
-    padding: 2px;
-    gap: 1px;
+    display: flex; background: transparent; border: 1px solid var(--border);
+    border-radius: 6px; height: 30px; padding: 2px; gap: 1px;
   }
   .lang-switch button {
-    background: transparent;
-    border: none;
-    color: var(--text-3);
-    font-family: inherit;
-    font-size: 11px;
-    font-weight: 600;
-    padding: 0 8px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.12s;
+    background: transparent; border: none; color: var(--text-3);
+    font-family: inherit; font-size: 11px; font-weight: 600;
+    padding: 0 8px; border-radius: 4px; cursor: pointer; transition: all 0.12s;
   }
-  .lang-switch button.active {
-    background: var(--accent);
-    color: #fff;
-  }
+  .lang-switch button.active { background: var(--accent); color: #fff; }
   .lang-switch button:not(.active):hover { color: var(--text-2); }
 
-  /* ============ HERO ============ */
-  .hero {
-    padding: 8px 0 24px;
-    margin-bottom: 8px;
-  }
-  .hero h1 {
-    font-size: 22px;
-    font-weight: 600;
-    letter-spacing: -0.02em;
-    line-height: 1.25;
-    margin-bottom: 8px;
-  }
-  .hero p {
-    font-size: 14px;
-    color: var(--text-2);
-    line-height: 1.6;
-  }
+  .hero { padding: 8px 0 24px; margin-bottom: 8px; }
+  .hero h1 { font-size: 22px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.25; margin-bottom: 8px; }
+  .hero p { font-size: 14px; color: var(--text-2); line-height: 1.6; }
 
-  /* ============ TABS ============ */
   .tabs {
-    display: flex;
-    gap: 2px;
-    margin-bottom: 24px;
+    display: flex; gap: 2px; margin-bottom: 24px;
     border-bottom: 1px solid var(--border);
-    overflow-x: auto;
-    scrollbar-width: none;
+    overflow-x: auto; scrollbar-width: none;
   }
   .tabs::-webkit-scrollbar { display: none; }
   .tab {
-    background: transparent;
-    border: none;
-    color: var(--text-2);
-    font-family: inherit;
-    font-size: 13px;
-    font-weight: 500;
-    padding: 10px 12px 12px;
-    cursor: pointer;
-    white-space: nowrap;
-    position: relative;
-    transition: color 0.15s;
-    display: flex;
-    align-items: center;
-    gap: 6px;
+    background: transparent; border: none; color: var(--text-2);
+    font-family: inherit; font-size: 13px; font-weight: 500;
+    padding: 10px 12px 12px; cursor: pointer; white-space: nowrap;
+    position: relative; transition: color 0.15s;
+    display: flex; align-items: center; gap: 6px;
   }
   .tab svg { width: 14px; height: 14px; opacity: 0.7; }
   .tab:hover { color: var(--text); }
   .tab.active { color: var(--text); font-weight: 600; }
   .tab.active::after {
-    content: '';
-    position: absolute;
-    bottom: -1px;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: var(--accent);
+    content: ''; position: absolute; bottom: -1px; left: 0; right: 0;
+    height: 2px; background: var(--accent);
   }
 
-  /* ============ PANELS ============ */
   .panel { display: none; }
   .panel.active { display: block; animation: panelIn 0.15s ease-out; }
   @keyframes panelIn { from { opacity: 0; } to { opacity: 1; } }
 
-  /* ============ CARDS ============ */
   .card {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 16px;
-    margin-bottom: 12px;
-    transition: background-color 0.2s, border-color 0.2s;
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 8px; padding: 16px; margin-bottom: 12px;
   }
   .card-title {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--text-2);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-bottom: 14px;
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; font-weight: 600; color: var(--text-2);
+    text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 14px;
   }
   .card-title svg { width: 13px; height: 13px; }
   .card-title-hint {
-    margin-left: auto;
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--text-3);
-    text-transform: none;
-    letter-spacing: 0;
+    margin-left: auto; font-size: 12px; font-weight: 500;
+    color: var(--text-3); text-transform: none; letter-spacing: 0;
     font-family: 'JetBrains Mono', monospace;
   }
 
-  /* ============ MODEL GRID ============ */
-  .model-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 6px;
-  }
+  .model-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
   .model-chip {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 7px;
-    padding: 10px 12px;
-    cursor: pointer;
-    transition: all 0.12s;
-    text-align: left;
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 7px; padding: 10px 12px; cursor: pointer;
+    transition: all 0.12s; text-align: left;
   }
   .model-chip:hover { border-color: var(--border-strong); background: var(--hover); }
   .model-chip.active {
-    border-color: var(--accent);
-    background: var(--accent-bg);
+    border-color: var(--accent); background: var(--accent-bg);
     box-shadow: 0 0 0 3px rgba(94, 106, 210, 0.1);
   }
-  [data-theme="dark"] .model-chip.active {
-    box-shadow: 0 0 0 3px rgba(124, 135, 224, 0.15);
-  }
+  [data-theme="dark"] .model-chip.active { box-shadow: 0 0 0 3px rgba(124, 135, 224, 0.15); }
   .model-name {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 13px;
-    font-weight: 600;
-    margin-bottom: 2px;
-    color: var(--text);
+    display: flex; align-items: center; gap: 6px;
+    font-size: 13px; font-weight: 600; margin-bottom: 2px; color: var(--text);
   }
   .model-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
   .model-price {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    color: var(--text-3);
-    font-variant-numeric: tabular-nums;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    color: var(--text-3); font-variant-numeric: tabular-nums;
   }
-  .model-chip.custom {
-    border-style: dashed;
-    border-color: var(--border-strong);
-  }
+  .model-chip.custom { border-style: dashed; border-color: var(--border-strong); }
   .model-chip.custom .model-name { color: var(--accent); }
 
-  /* ============ CUSTOM MODEL PANEL ============ */
   .custom-panel {
-    margin-top: 10px;
-    padding: 12px;
-    background: var(--bg);
-    border: 1px dashed var(--border-strong);
-    border-radius: 8px;
-    display: none;
+    margin-top: 10px; padding: 12px;
+    background: var(--bg); border: 1px dashed var(--border-strong);
+    border-radius: 8px; display: none;
   }
   .custom-panel.open { display: block; }
-  .custom-panel .input-label { margin-bottom: 6px; }
-  .custom-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    margin-bottom: 10px;
-  }
+  .custom-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
   .custom-row .input-group { margin-bottom: 0; }
 
-  /* ============ PRESETS ============ */
   .presets {
-    display: flex;
-    gap: 4px;
-    overflow-x: auto;
-    margin: 0 -16px 14px;
-    padding: 0 16px 4px;
+    display: flex; gap: 4px; overflow-x: auto;
+    margin: 0 -16px 14px; padding: 0 16px 4px;
     scrollbar-width: none;
   }
   .presets::-webkit-scrollbar { display: none; }
   .preset {
-    flex-shrink: 0;
-    background: transparent;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 6px 10px;
-    font-size: 12px;
-    font-weight: 500;
-    font-family: inherit;
-    color: var(--text-2);
-    cursor: pointer;
-    transition: all 0.12s;
-    white-space: nowrap;
+    flex-shrink: 0; background: transparent;
+    border: 1px solid var(--border); border-radius: 6px;
+    padding: 6px 10px; font-size: 12px; font-weight: 500;
+    font-family: inherit; color: var(--text-2);
+    cursor: pointer; transition: all 0.12s; white-space: nowrap;
   }
   .preset:hover { border-color: var(--border-strong); color: var(--text); }
   .preset.active {
-    border-color: var(--accent);
-    background: var(--accent-bg);
-    color: var(--accent);
-    font-weight: 600;
+    border-color: var(--accent); background: var(--accent-bg);
+    color: var(--accent); font-weight: 600;
   }
 
-  /* ============ INPUTS ============ */
   .input-group { margin-bottom: 14px; }
   .input-group:last-child { margin-bottom: 0; }
   .input-label {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--text-2);
-    margin-bottom: 6px;
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 12px; font-weight: 500; color: var(--text-2); margin-bottom: 6px;
   }
   .input-label .label-unit {
-    font-size: 11px;
-    color: var(--text-3);
+    font-size: 11px; color: var(--text-3);
     font-family: 'JetBrains Mono', monospace;
   }
   .input-wrap { position: relative; }
   input[type="number"], input[type="text"], textarea {
-    width: 100%;
-    background: var(--panel);
-    border: 1px solid var(--border);
-    color: var(--text);
-    padding: 10px 12px;
-    border-radius: 6px;
+    width: 100%; background: var(--panel);
+    border: 1px solid var(--border); color: var(--text);
+    padding: 10px 12px; border-radius: 6px;
     font-family: 'JetBrains Mono', monospace;
-    font-size: 15px;
-    font-weight: 500;
+    font-size: 15px; font-weight: 500;
     font-variant-numeric: tabular-nums;
-    transition: border-color 0.12s, box-shadow 0.12s, background-color 0.2s;
+    transition: border-color 0.12s, box-shadow 0.12s;
     -moz-appearance: textfield;
   }
   input[type="number"]:focus, input[type="text"]:focus, textarea:focus {
-    outline: none;
-    border-color: var(--accent);
+    outline: none; border-color: var(--accent);
     box-shadow: 0 0 0 3px rgba(94, 106, 210, 0.12);
   }
   [data-theme="dark"] input:focus,
@@ -381,380 +200,234 @@
   input[type="number"]::-webkit-outer-spin-button,
   input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
   textarea {
-    font-family: 'Inter', sans-serif;
-    font-size: 13px;
-    font-weight: 400;
-    line-height: 1.6;
-    min-height: 120px;
-    resize: vertical;
+    font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 400;
+    line-height: 1.6; min-height: 120px; resize: vertical;
   }
 
   input[type="range"] {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 100%;
-    height: 4px;
-    border-radius: 2px;
-    background: var(--border);
-    outline: none;
-    margin: 8px 0 4px;
+    -webkit-appearance: none; appearance: none;
+    width: 100%; height: 4px; border-radius: 2px;
+    background: var(--border); outline: none; margin: 8px 0 4px;
   }
   input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: var(--panel);
-    border: 2px solid var(--accent);
-    cursor: pointer;
+    -webkit-appearance: none; appearance: none;
+    width: 20px; height: 20px; border-radius: 50%;
+    background: var(--panel); border: 2px solid var(--accent); cursor: pointer;
   }
   input[type="range"]::-moz-range-thumb {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: var(--panel);
-    border: 2px solid var(--accent);
-    cursor: pointer;
+    width: 20px; height: 20px; border-radius: 50%;
+    background: var(--panel); border: 2px solid var(--accent); cursor: pointer;
   }
   .range-scale {
-    display: flex;
-    justify-content: space-between;
-    font-size: 11px;
-    color: var(--text-3);
+    display: flex; justify-content: space-between;
+    font-size: 11px; color: var(--text-3);
     font-family: 'JetBrains Mono', monospace;
   }
 
-  /* ============ RESULT ============ */
+  .slider-row { display: flex; gap: 10px; align-items: center; }
+  .slider-row input[type="range"] { flex: 1; margin: 0; }
+  .slider-row input[type="number"] {
+    width: 90px; font-size: 14px;
+    padding: 8px 10px; text-align: center;
+  }
+
   .result {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 20px;
-    margin-bottom: 12px;
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 8px; padding: 20px; margin-bottom: 12px;
   }
-  .result-label {
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--text-2);
-    margin-bottom: 10px;
-  }
+  .result-label { font-size: 12px; font-weight: 500; color: var(--text-2); margin-bottom: 10px; }
   .result-value {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 34px;
-    font-weight: 600;
-    line-height: 1.1;
-    letter-spacing: -0.03em;
-    color: var(--text);
-    margin-bottom: 6px;
+    font-size: 34px; font-weight: 600; line-height: 1.1;
+    letter-spacing: -0.03em; color: var(--text); margin-bottom: 6px;
   }
   .result-sub {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 13px;
-    color: var(--text-3);
-    margin-bottom: 4px;
+    font-size: 13px; color: var(--text-3); margin-bottom: 4px;
   }
-  .result-year {
-    font-size: 12px;
-    color: var(--text-2);
-    margin-bottom: 16px;
-  }
+  .result-year { font-size: 12px; color: var(--text-2); margin-bottom: 16px; }
   .result-year b { font-family: 'JetBrains Mono', monospace; color: var(--text); font-weight: 600; }
 
   .compare-bar {
-    height: 6px;
-    border-radius: 3px;
-    overflow: hidden;
-    background: var(--border);
-    display: flex;
-    margin-bottom: 8px;
+    height: 6px; border-radius: 3px; overflow: hidden;
+    background: var(--border); display: flex; margin-bottom: 8px;
   }
   .compare-seg { height: 100%; transition: width 0.3s ease; }
   .compare-seg.in { background: var(--accent); }
   .compare-seg.out { background: var(--accent); opacity: 0.35; }
 
   .compare-legend {
-    display: flex;
-    justify-content: space-between;
-    font-size: 12px;
-    color: var(--text-2);
+    display: flex; justify-content: space-between;
+    font-size: 12px; color: var(--text-2);
   }
   .compare-legend b { font-family: 'JetBrains Mono', monospace; color: var(--text); font-weight: 600; }
   .legend-item { display: flex; align-items: center; gap: 6px; }
   .legend-dot { width: 6px; height: 6px; border-radius: 50%; }
 
-  /* ============ BUTTON ============ */
   .btn {
-    width: 100%;
-    background: var(--accent);
-    color: #fff;
-    border: none;
-    padding: 11px 16px;
-    border-radius: 6px;
-    font-family: inherit;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.12s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    margin-bottom: 12px;
+    width: 100%; background: var(--accent); color: #fff;
+    border: none; padding: 11px 16px; border-radius: 6px;
+    font-family: inherit; font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: background 0.12s;
+    display: flex; align-items: center; justify-content: center;
+    gap: 8px; margin-bottom: 12px;
   }
   .btn:hover { background: var(--accent-hover); }
   .btn:active { transform: translateY(1px); }
   .btn.copied { background: var(--success); }
   .btn svg { width: 14px; height: 14px; }
 
-  /* ============ HINT ============ */
   .hint-card {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 12px 14px;
-    font-size: 13px;
-    color: var(--text-2);
-    margin-bottom: 12px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    line-height: 1.5;
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px 14px;
+    font-size: 13px; color: var(--text-2); margin-bottom: 12px;
+    display: flex; align-items: center; gap: 10px; line-height: 1.5;
   }
   .hint-card b { color: var(--text); font-weight: 600; font-family: 'JetBrains Mono', monospace; }
   .hint-icon { width: 20px; height: 20px; color: var(--text-3); flex-shrink: 0; }
 
-  /* ============ MONTHLY ============ */
   .monthly-head {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
+    display: flex; align-items: baseline; justify-content: space-between;
     margin-bottom: 12px;
   }
   .monthly-title { font-size: 12px; color: var(--text-2); font-weight: 500; }
   .monthly-value {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 18px;
-    font-weight: 600;
-    color: var(--text);
+    font-size: 18px; font-weight: 600; color: var(--text);
     letter-spacing: -0.02em;
   }
   .monthly-value span { font-size: 12px; color: var(--text-3); font-weight: 500; }
 
-  /* ============ COMPARE TABLE ============ */
   .cmp-table { width: 100%; border-collapse: collapse; font-size: 13px; }
   .cmp-table th {
-    text-align: left;
-    padding: 8px 6px;
-    font-size: 11px;
-    font-weight: 500;
-    color: var(--text-3);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    text-align: left; padding: 8px 6px;
+    font-size: 11px; font-weight: 500; color: var(--text-3);
+    text-transform: uppercase; letter-spacing: 0.05em;
     border-bottom: 1px solid var(--border);
   }
   .cmp-table th:last-child { text-align: right; }
   .cmp-table td {
-    padding: 10px 6px;
-    border-bottom: 1px solid var(--border);
+    padding: 10px 6px; border-bottom: 1px solid var(--border);
     font-size: 13px;
   }
   .cmp-table tr:last-child td { border-bottom: none; }
   .cmp-table .rank {
-    width: 24px;
-    color: var(--text-3);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12px;
+    width: 24px; color: var(--text-3);
+    font-family: 'JetBrains Mono', monospace; font-size: 12px;
   }
   .cmp-table td:last-child {
-    text-align: right;
-    font-family: 'JetBrains Mono', monospace;
-    font-weight: 500;
-    font-size: 13px;
+    text-align: right; font-family: 'JetBrains Mono', monospace;
+    font-weight: 500; font-size: 13px;
   }
   .cmp-table .best { color: var(--accent); font-weight: 600; }
   .cmp-table .model-cell {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-weight: 500;
+    display: flex; align-items: center; gap: 8px; font-weight: 500;
   }
   .cmp-table .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
 
-  /* ============ COUNTERS ============ */
   .counters {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-    margin-top: 12px;
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 8px; margin-top: 12px;
   }
   .counter {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 10px;
-    text-align: center;
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 6px; padding: 10px; text-align: center;
   }
   .counter-label {
-    font-size: 10px;
-    font-weight: 500;
-    color: var(--text-3);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-bottom: 4px;
+    font-size: 10px; font-weight: 500; color: var(--text-3);
+    text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;
   }
   .counter-value {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--text);
+    font-size: 16px; font-weight: 600; color: var(--text);
     font-variant-numeric: tabular-nums;
   }
   .counter.accent { border-color: var(--accent); background: var(--accent-bg); }
   .counter.accent .counter-value { color: var(--accent); }
 
-  /* ============ FAQ ============ */
   .faq-item {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    margin-bottom: 6px;
-    cursor: pointer;
-    overflow: hidden;
-    transition: border-color 0.12s;
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 8px; margin-bottom: 6px; cursor: pointer;
+    overflow: hidden; transition: border-color 0.12s;
   }
   .faq-item:hover { border-color: var(--border-strong); }
   .faq-q {
-    padding: 14px 16px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-size: 13px;
-    font-weight: 500;
-    gap: 12px;
+    padding: 14px 16px; display: flex; align-items: center;
+    justify-content: space-between; font-size: 13px;
+    font-weight: 500; gap: 12px;
   }
   .faq-toggle {
-    color: var(--text-3);
-    font-size: 16px;
-    font-weight: 400;
-    transition: transform 0.2s;
-    line-height: 1;
-    font-family: 'JetBrains Mono', monospace;
-    flex-shrink: 0;
+    color: var(--text-3); font-size: 16px; font-weight: 400;
+    transition: transform 0.2s; line-height: 1;
+    font-family: 'JetBrains Mono', monospace; flex-shrink: 0;
   }
   .faq-item.open .faq-toggle { transform: rotate(45deg); color: var(--accent); }
   .faq-a {
-    max-height: 0;
-    overflow: hidden;
+    max-height: 0; overflow: hidden;
     transition: max-height 0.25s ease, padding 0.2s ease;
-    font-size: 13px;
-    color: var(--text-2);
-    line-height: 1.65;
-    padding: 0 16px;
+    font-size: 13px; color: var(--text-2);
+    line-height: 1.65; padding: 0 16px;
   }
   .faq-item.open .faq-a { max-height: 300px; padding: 0 16px 16px; }
 
-  /* ============ CONTENT SECTIONS ============ */
   .section-title {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--text-2);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    font-size: 12px; font-weight: 600; color: var(--text-2);
+    text-transform: uppercase; letter-spacing: 0.05em;
     margin: 32px 0 12px;
   }
   .content-card {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 20px;
-    margin-bottom: 12px;
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 8px; padding: 20px; margin-bottom: 12px;
   }
   .content-card h3 {
-    font-size: 15px;
-    font-weight: 600;
-    margin-bottom: 10px;
+    font-size: 15px; font-weight: 600; margin-bottom: 10px;
     letter-spacing: -0.01em;
   }
   .content-card p {
-    font-size: 13px;
-    color: var(--text-2);
-    line-height: 1.7;
-    margin-bottom: 10px;
+    font-size: 13px; color: var(--text-2);
+    line-height: 1.7; margin-bottom: 10px;
   }
   .content-card p:last-child { margin-bottom: 0; }
-  .content-card ul {
-    list-style: none;
-    padding: 0;
-    margin: 10px 0 0;
-  }
+  .content-card ul { list-style: none; padding: 0; margin: 10px 0 0; }
   .content-card li {
-    font-size: 13px;
-    color: var(--text-2);
-    line-height: 1.6;
-    padding: 6px 0 6px 20px;
-    position: relative;
+    font-size: 13px; color: var(--text-2); line-height: 1.6;
+    padding: 6px 0 6px 20px; position: relative;
   }
   .content-card li::before {
-    content: '';
-    position: absolute;
-    left: 4px;
-    top: 14px;
-    width: 4px;
-    height: 4px;
-    border-radius: 50%;
-    background: var(--accent);
+    content: ''; position: absolute; left: 4px; top: 14px;
+    width: 4px; height: 4px; border-radius: 50%; background: var(--accent);
   }
   .content-card code {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 12px;
-    background: var(--bg);
-    padding: 1px 5px;
-    border-radius: 4px;
-    border: 1px solid var(--border);
-    color: var(--text);
+    font-size: 12px; background: var(--bg);
+    padding: 1px 5px; border-radius: 4px;
+    border: 1px solid var(--border); color: var(--text);
   }
 
   .use-cases {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 8px;
-    margin-top: 12px;
+    display: grid; grid-template-columns: 1fr;
+    gap: 8px; margin-top: 12px;
   }
   .use-case {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 14px 16px;
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 8px; padding: 14px 16px;
   }
   .use-case-title {
-    font-size: 13px;
-    font-weight: 600;
-    margin-bottom: 4px;
-    color: var(--text);
+    font-size: 13px; font-weight: 600; margin-bottom: 4px; color: var(--text);
   }
-  .use-case-desc {
-    font-size: 12px;
-    color: var(--text-2);
-    line-height: 1.55;
-  }
+  .use-case-desc { font-size: 12px; color: var(--text-2); line-height: 1.55; }
 
   footer {
-    text-align: center;
-    font-size: 12px;
-    color: var(--text-3);
-    margin-top: 40px;
-    padding-top: 24px;
+    text-align: center; font-size: 12px; color: var(--text-3);
+    margin-top: 40px; padding-top: 24px;
     border-top: 1px solid var(--border);
   }
   footer a { color: var(--text-3); text-decoration: none; }
   footer a:hover { color: var(--text-2); }
 
-  /* ============ DESKTOP ============ */
   @media (min-width: 900px) {
     body { padding: 32px; padding-bottom: 32px; }
     .container { max-width: 1160px; }
-
     header { padding: 8px 0 24px; margin-bottom: 24px; }
     .logo { font-size: 15px; }
     .logo-mark { width: 26px; height: 26px; font-size: 13px; border-radius: 6px; }
@@ -762,64 +435,48 @@
     .icon-btn svg { width: 15px; height: 15px; }
     .lang-switch { height: 34px; }
     .lang-switch button { font-size: 12px; padding: 0 10px; }
-
     .hero { padding: 8px 0 32px; }
     .hero h1 { font-size: 30px; margin-bottom: 12px; }
     .hero p { font-size: 15px; max-width: 720px; }
-
     .tabs { gap: 4px; margin-bottom: 28px; }
     .tab { padding: 12px 16px 14px; font-size: 14px; }
     .tab svg { width: 15px; height: 15px; }
-
     .panel.active {
       display: grid;
       grid-template-columns: minmax(0, 1fr) 400px;
-      gap: 24px;
-      align-items: start;
+      gap: 24px; align-items: start;
     }
     .col-right { position: sticky; top: 32px; }
-
     .card { padding: 20px; margin-bottom: 14px; }
     .card-title { font-size: 13px; margin-bottom: 16px; }
-
     .model-grid { gap: 8px; }
     .model-chip { padding: 12px 14px; }
     .model-name { font-size: 14px; }
     .model-price { font-size: 12px; }
-
     input[type="number"], input[type="text"] { font-size: 16px; padding: 11px 14px; }
-
+    .slider-row input[type="number"] { width: 100px; }
     .result { padding: 28px; }
     .result-value { font-size: 44px; }
     .result-sub { font-size: 14px; }
     .result-label { font-size: 13px; }
-
     .btn { padding: 13px 20px; font-size: 14px; }
-
     .cmp-table { font-size: 14px; }
     .cmp-table td { padding: 12px 8px; font-size: 14px; }
     .cmp-table td:last-child { font-size: 14px; }
-
     .counter-value { font-size: 20px; }
-
     .faq-item .faq-q { padding: 16px 20px; font-size: 14px; }
     .faq-item.open .faq-a { padding: 0 20px 18px; font-size: 14px; }
-
     .section-title { font-size: 13px; margin: 40px 0 16px; }
-
     .content-card { padding: 28px; }
     .content-card h3 { font-size: 17px; margin-bottom: 12px; }
     .content-card p { font-size: 14px; }
     .content-card li { font-size: 14px; }
-
     .use-cases { grid-template-columns: repeat(3, 1fr); gap: 12px; }
     .use-case { padding: 18px 20px; }
     .use-case-title { font-size: 14px; }
     .use-case-desc { font-size: 13px; }
-
     footer { margin-top: 48px; font-size: 13px; }
   }
-
   @media (min-width: 1200px) {
     .container { max-width: 1240px; }
     .panel.active { grid-template-columns: minmax(0, 1fr) 440px; gap: 28px; }
@@ -830,10 +487,7 @@
 <div class="container">
 
   <header>
-    <div class="logo">
-      <span class="logo-mark">A</span>
-      AI Cost Calculator
-    </div>
+    <div class="logo"><span class="logo-mark">A</span>AI Cost Calculator</div>
     <div class="header-controls">
       <div class="lang-switch">
         <button data-lang="ru" class="active">RU</button>
@@ -871,7 +525,7 @@
     </button>
   </nav>
 
-  <!-- ============ PANEL 1: CALC ============ -->
+  <!-- PANEL 1: CALC -->
   <div class="panel active" id="panel-calc">
     <div class="col-left">
       <div class="card">
@@ -970,8 +624,11 @@
           <div class="monthly-title" data-i18n="monthlyTitle">При таком темпе</div>
           <div class="monthly-value num" id="monthlyUsd">$0 <span data-i18n="perMonth">/мес</span></div>
         </div>
-        <input type="range" id="perDaySlider" min="1" max="5000" step="1" value="100">
-        <div class="range-scale">
+        <div class="slider-row">
+          <input type="range" id="perDaySlider" min="1" max="5000" step="1" value="100">
+          <input type="number" id="perDayInput" value="100" inputmode="numeric" min="1">
+        </div>
+        <div class="range-scale" style="margin-top:6px;">
           <span>1</span>
           <span id="perDayLabel">100 / <span data-i18n="perDay">день</span></span>
           <span>5000</span>
@@ -980,7 +637,7 @@
     </div>
   </div>
 
-  <!-- ============ PANEL 2: REVERSE ============ -->
+  <!-- PANEL 2: REVERSE -->
   <div class="panel" id="panel-reverse">
     <div class="col-left">
       <div class="card">
@@ -1010,8 +667,11 @@
           <div class="monthly-title" data-i18n="reqSizeLabel">Размер одного запроса</div>
           <div class="monthly-value num" id="revSize">2000 <span data-i18n="tokensUnit">токенов</span></div>
         </div>
-        <input type="range" id="revSizeSlider" min="200" max="20000" step="100" value="2000">
-        <div class="range-scale"><span>200</span><span>20 000</span></div>
+        <div class="slider-row">
+          <input type="range" id="revSizeSlider" min="200" max="20000" step="100" value="2000">
+          <input type="number" id="revSizeInput" value="2000" inputmode="numeric" min="200">
+        </div>
+        <div class="range-scale" style="margin-top:6px;"><span>200</span><span>20 000</span></div>
         <div style="font-size:12px;color:var(--text-3);margin-top:10px;">
           <span data-i18n="ioRatio">Вход / выход</span>: <span class="num" id="revRatio">75% / 25%</span>
         </div>
@@ -1028,7 +688,7 @@
     </div>
   </div>
 
-  <!-- ============ PANEL 3: COMPARE ============ -->
+  <!-- PANEL 3: COMPARE -->
   <div class="panel" id="panel-compare">
     <div class="col-left">
       <div class="card">
@@ -1076,7 +736,7 @@
     </div>
   </div>
 
-  <!-- ============ PANEL 4: TEXT ============ -->
+  <!-- PANEL 4: TEXT -->
   <div class="panel" id="panel-text">
     <div class="col-left">
       <div class="card">
@@ -1104,7 +764,7 @@
 
     <div class="col-right">
       <div class="result">
-        <div class="result-label" data-i18n="textCostLabel">Стоимость на GPT-4.1</div>
+        <div class="result-label" data-i18n="textCostLabel">Стоимость на GPT-5.6 Terra</div>
         <div class="result-value num" id="textCost">$0</div>
         <div class="result-sub num" id="textCostRub">≈ 0 ₽</div>
       </div>
@@ -1117,7 +777,6 @@
     </div>
   </div>
 
-  <!-- ============ CONTENT: What is it ============ -->
   <div class="section-title" data-i18n="sect1Title">Что это такое</div>
   <div class="content-card">
     <h3 data-i18n="sect1Head">Зачем нужен калькулятор стоимости ИИ</h3>
@@ -1131,7 +790,6 @@
     </ul>
   </div>
 
-  <!-- ============ CONTENT: Use cases ============ -->
   <div class="section-title" data-i18n="sect2Title">Примеры использования</div>
   <div class="use-cases">
     <div class="use-case">
@@ -1148,7 +806,6 @@
     </div>
   </div>
 
-  <!-- ============ CONTENT: Tokens ============ -->
   <div class="section-title" data-i18n="sect3Title">Про токены</div>
   <div class="content-card">
     <h3 data-i18n="sect3Head">Что такое токен и почему выход дороже</h3>
@@ -1157,7 +814,6 @@
     <p data-i18n="sect3P3">Пример: короткий вопрос ≈ 50 токенов промпта и ≈ 200 токенов ответа. На GPT-5.6 Terra это стоит около <code>$0.0026</code>. На GPT-5.6 Luna — в 10 раз дешевле.</p>
   </div>
 
-  <!-- ============ CONTENT: Save money ============ -->
   <div class="section-title" data-i18n="sect4Title">Как сэкономить</div>
   <div class="content-card">
     <h3 data-i18n="sect4Head">Три способа сократить расходы в 2–30 раз</h3>
@@ -1168,7 +824,6 @@
     </ul>
   </div>
 
-  <!-- ============ FAQ ============ -->
   <div class="section-title" data-i18n="faqTitle">Частые вопросы</div>
 
   <div class="faq-item">
@@ -1181,7 +836,7 @@
   </div>
   <div class="faq-item">
     <div class="faq-q"><span data-i18n="faq3Q">Цены актуальны?</span> <span class="faq-toggle">+</span></div>
-    <div class="faq-a" data-i18n="faq3A">Да, данные обновляются автоматически каждый день из публичной базы LiteLLM, которую поддерживает сообщество.</div>
+    <div class="faq-a" data-i18n="faq3A">Да, данные обновляются автоматически каждый день из публичной базы LiteLLM.</div>
   </div>
   <div class="faq-item">
     <div class="faq-q"><span data-i18n="faq4Q">Как считается стоимость?</span> <span class="faq-toggle">+</span></div>
@@ -1189,7 +844,7 @@
   </div>
   <div class="faq-item">
     <div class="faq-q"><span data-i18n="faq5Q">Какой курс рубля используется?</span> <span class="faq-toggle">+</span></div>
-    <div class="faq-a" data-i18n="faq5A">Фиксированный курс, близкий к текущему. Он нужен только для ориентира — расчёты в долларах, потому что все провайдеры выставляют счёт в USD.</div>
+    <div class="faq-a" data-i18n="faq5A">Фиксированный курс, близкий к текущему. Он нужен только для ориентира — расчёты в долларах.</div>
   </div>
   <div class="faq-item">
     <div class="faq-q"><span data-i18n="faq6Q">Можно ли добавить свою модель?</span> <span class="faq-toggle">+</span></div>
@@ -1206,7 +861,6 @@
 </div>
 
 <script>
-// ============ TRANSLATIONS ============
 const I18N = {
   ru: {
     heroTitle: 'Сколько стоит твой запрос к ИИ?',
@@ -1227,10 +881,9 @@ const I18N = {
     textLabel: 'Текст',
     textPlaceholder: 'Вставь текст — посчитаю токены и стоимость',
     chars: 'Символов', words: 'Слов',
-    textCostLabel: 'Стоимость на GPT-4.1',
+    textCostLabel: 'Стоимость на GPT-5.6 Terra',
     textHint: 'Для русского текста ≈ 2 символа на токен, для английского ≈ 4. Среднее значение используется автоматически.',
     year: 'За год',
-    reqPerDay: 'запросов/день',
     winner: '{w} дешевле всех — разница с {l} в {d}×',
     oneReq: 'Один запрос', noBudget: 'Бюджета не хватает на 1 запрос',
     reqs: 'запросов',
@@ -1246,7 +899,7 @@ const I18N = {
     customName: 'Своя модель',
     sect1Title: 'Что это такое',
     sect1Head: 'Зачем нужен калькулятор стоимости ИИ',
-    sect1P1: 'Каждый запрос к ChatGPT, Claude или Gemini стоит денег. Провайдеры берут плату за количество токенов — кусочков текста, на которые разбивается твой промпт и ответ модели. Если не считать это заранее, можно неожиданно получить счёт на десятки или сотни долларов в конце месяца.',
+    sect1P1: 'Каждый запрос к ChatGPT, Claude или Gemini стоит денег. Провайдеры берут плату за количество токенов — кусочков текста, на которые разбивается твой промпт и ответ модели.',
     sect1P2: 'Этот калькулятор помогает:',
     sect1L1: 'Понять, сколько стоит один запрос к разным моделям',
     sect1L2: 'Сравнить цены GPT-5.6, Claude, Gemini и DeepSeek на одинаковой задаче',
@@ -1262,32 +915,24 @@ const I18N = {
     sect3Title: 'Про токены',
     sect3Head: 'Что такое токен и почему выход дороже',
     sect3P1: 'Токен — это часть слова. Модель разбивает текст на токены, чтобы обработать его. В среднем 1 000 токенов ≈ 750 слов на английском или ≈ 500 слов на русском.',
-    sect3P2: 'Провайдеры берут разную цену за вход (твой промпт) и выход (ответ модели). Выход обычно в 3–4 раза дороже, потому что генерация идёт по одному токену за раз и требует больше вычислений.',
+    sect3P2: 'Провайдеры берут разную цену за вход (твой промпт) и выход (ответ модели). Выход обычно в 3–4 раза дороже, потому что генерация идёт по одному токену за раз.',
     sect3P3: 'Пример: короткий вопрос ≈ 50 токенов промпта и ≈ 200 токенов ответа. На GPT-5.6 Terra это стоит около $0.0026. На GPT-5.6 Luna — в 10 раз дешевле.',
     sect4Title: 'Как сэкономить',
     sect4Head: 'Три способа сократить расходы в 2–30 раз',
     sect4L1: 'Кэширование промптов — если ты отправляешь один и тот же контекст много раз, провайдер запомнит его и второй раз возьмёт в 10–30 раз дешевле.',
     sect4L2: 'Batch API — если запросы не срочные, можно отправить их пакетом и получить скидку 50%.',
-    sect4L3: 'Mini и Flash версии — для простых задач (классификация, короткие ответы) они дают почти тот же результат, но стоят в 10–20 раз меньше.',
+    sect4L3: 'Mini и Flash версии — для простых задач они дают почти тот же результат, но стоят в 10–20 раз меньше.',
     faqTitle: 'Частые вопросы',
-    faq1Q: 'Что такое токен?',
-    faq1A: 'Токен — часть слова. ~1000 токенов ≈ 750 слов на английском или ~500 слов на русском.',
-    faq2Q: 'Почему выход дороже входа?',
-    faq2A: 'Модели генерируют ответ по одному токену, каждый требует вычислений. Промпт обрабатывается параллельно, поэтому дешевле в 3–5 раз.',
-    faq3Q: 'Цены актуальны?',
-    faq3A: 'Да, данные обновляются автоматически каждый день из публичной базы LiteLLM.',
-    faq4Q: 'Как считается стоимость?',
-    faq4A: 'Отдельно считаются входные и выходные токены по тарифам модели, затем суммируются. Выход всегда дороже входа.',
-    faq5Q: 'Какой курс рубля используется?',
-    faq5A: 'Фиксированный курс, близкий к текущему. Он нужен только для ориентира — расчёты в долларах.',
-    faq6Q: 'Можно ли добавить свою модель?',
-    faq6A: 'Да, в панели моделей есть кнопка «Своя модель». Введи цены за вход и выход — они сохранятся и будут использоваться во всех вкладках.',
-    faq7Q: 'Это бесплатно?',
-    faq7A: 'Да, калькулятор полностью бесплатный. Сайт существует на рекламные доходы, но реклама не влияет на расчёты.',
+    faq1Q: 'Что такое токен?', faq1A: 'Токен — часть слова. ~1000 токенов ≈ 750 слов на английском или ~500 слов на русском.',
+    faq2Q: 'Почему выход дороже входа?', faq2A: 'Модели генерируют ответ по одному токену, каждый требует вычислений. Промпт обрабатывается параллельно, поэтому дешевле в 3–5 раз.',
+    faq3Q: 'Цены актуальны?', faq3A: 'Да, данные обновляются автоматически каждый день из публичной базы LiteLLM.',
+    faq4Q: 'Как считается стоимость?', faq4A: 'Отдельно считаются входные и выходные токены по тарифам модели, затем суммируются. Выход всегда дороже входа.',
+    faq5Q: 'Какой курс рубля используется?', faq5A: 'Фиксированный курс, близкий к текущему. Он нужен только для ориентира — расчёты в долларах.',
+    faq6Q: 'Можно ли добавить свою модель?', faq6A: 'Да, в панели моделей есть кнопка «Своя модель». Введи цены за вход и выход — они сохранятся и будут использоваться во всех вкладках.',
+    faq7Q: 'Это бесплатно?', faq7A: 'Да, калькулятор полностью бесплатный. Сайт существует на рекламные доходы, но реклама не влияет на расчёты.',
     footerPrivacy: 'Privacy',
     presetQ: 'Вопрос', presetEmail: 'Письмо', presetArticle: 'Статья',
     presetCode: 'Код', presetTranslate: 'Перевод', presetAnalysis: 'Анализ',
-    updated: 'Обновлено', offline: 'офлайн',
     perDaySuffix: '/ день',
   },
   en: {
@@ -1312,7 +957,6 @@ const I18N = {
     textCostLabel: 'Cost on GPT-5.6 Terra',
     textHint: 'For Russian text ≈ 2 chars per token, for English ≈ 4. Average used automatically.',
     year: 'Per year',
-    reqPerDay: 'requests/day',
     winner: '{w} is cheapest — {d}× cheaper than {l}',
     oneReq: 'One request', noBudget: 'Budget is not enough for 1 request',
     reqs: 'requests',
@@ -1328,7 +972,7 @@ const I18N = {
     customName: 'Custom model',
     sect1Title: 'What it is',
     sect1Head: 'Why you need an AI cost calculator',
-    sect1P1: 'Every request to ChatGPT, Claude or Gemini costs money. Providers charge for tokens — chunks of text your prompt and the model response are split into. Without estimating it upfront, you can suddenly get a bill of tens or hundreds of dollars at the end of the month.',
+    sect1P1: 'Every request to ChatGPT, Claude or Gemini costs money. Providers charge for tokens — chunks of text your prompt and the model response are split into.',
     sect1P2: 'This calculator helps you:',
     sect1L1: 'Understand how much one request costs across different models',
     sect1L2: 'Compare prices of GPT-5.6, Claude, Gemini and DeepSeek on the same task',
@@ -1336,7 +980,7 @@ const I18N = {
     sect1L4: 'Pick a model that will not break the bank at scale',
     sect2Title: 'Use cases',
     case1Title: 'Support chatbot',
-    case1Desc: '1,000 conversations per day at 500 tokens each. Calculate daily, monthly and yearly cost to stay within budget.',
+    case1Desc: '1,000 conversations per day at 500 tokens each. Calculate daily, monthly and yearly cost.',
     case2Title: 'Content generation',
     case2Desc: '50 articles per day at 3,000 tokens each. Compare GPT-5.6 and GPT-5.6 Luna — the difference can be 20×.',
     case3Title: 'AI-assisted development',
@@ -1344,49 +988,40 @@ const I18N = {
     sect3Title: 'About tokens',
     sect3Head: 'What is a token and why output is more expensive',
     sect3P1: 'A token is a piece of a word. The model splits text into tokens to process it. On average 1,000 tokens ≈ 750 English words or ≈ 500 Russian words.',
-    sect3P2: 'Providers charge differently for input (your prompt) and output (model response). Output is usually 3–4× more expensive because generation happens one token at a time and requires more computation.',
+    sect3P2: 'Providers charge differently for input and output. Output is usually 3–4× more expensive because generation happens one token at a time.',
     sect3P3: 'Example: a short question ≈ 50 prompt tokens and ≈ 200 response tokens. On GPT-5.6 Terra this costs about $0.0026. On GPT-5.6 Luna — 10× cheaper.',
     sect4Title: 'How to save',
     sect4Head: 'Three ways to cut costs 2–30×',
-    sect4L1: 'Prompt caching — if you send the same context many times, the provider remembers it and charges 10–30× less the second time.',
-    sect4L2: 'Batch API — for non-urgent requests you can send them in a batch and get a 50% discount.',
-    sect4L3: 'Mini and Flash versions — for simple tasks they give almost the same result at 10–20× lower cost.',
+    sect4L1: 'Prompt caching — if you send the same context many times, the provider charges 10–30× less the second time.',
+    sect4L2: 'Batch API — for non-urgent requests, get a 50% discount.',
+    sect4L3: 'Mini and Flash versions — for simple tasks at 10–20× lower cost.',
     faqTitle: 'FAQ',
-    faq1Q: 'What is a token?',
-    faq1A: 'A token is a piece of a word. ~1000 tokens ≈ 750 English words or ~500 Russian words.',
-    faq2Q: 'Why is output more expensive?',
-    faq2A: 'Models generate response one token at a time, each requires computation. Prompts are processed in parallel, so 3–5× cheaper.',
-    faq3Q: 'Are prices up to date?',
-    faq3A: 'Yes, data is updated automatically every day from the public LiteLLM database.',
-    faq4Q: 'How is cost calculated?',
-    faq4A: 'Input and output tokens are calculated separately at each model rate, then summed. Output is always more expensive.',
-    faq5Q: 'Which exchange rate is used?',
-    faq5A: 'A fixed rate close to current. It is only for reference — all calculations are in USD.',
-    faq6Q: 'Can I add a custom model?',
-    faq6A: 'Yes, in the models panel there is a "Custom model" button. Enter input and output prices — they will be saved and used across all tabs.',
-    faq7Q: 'Is it free?',
-    faq7A: 'Yes, the calculator is completely free. The site is funded by ads, but ads do not affect calculations.',
+    faq1Q: 'What is a token?', faq1A: 'A token is a piece of a word. ~1000 tokens ≈ 750 English words or ~500 Russian words.',
+    faq2Q: 'Why is output more expensive?', faq2A: 'Models generate response one token at a time. Prompts are processed in parallel, so 3–5× cheaper.',
+    faq3Q: 'Are prices up to date?', faq3A: 'Yes, data is updated automatically every day from the public LiteLLM database.',
+    faq4Q: 'How is cost calculated?', faq4A: 'Input and output tokens are calculated separately at each model rate, then summed.',
+    faq5Q: 'Which exchange rate is used?', faq5A: 'A fixed rate close to current. It is only for reference — all calculations are in USD.',
+    faq6Q: 'Can I add a custom model?', faq6A: 'Yes, in the models panel there is a "Custom model" button. Enter input and output prices — they will be saved and used across all tabs.',
+    faq7Q: 'Is it free?', faq7A: 'Yes, the calculator is completely free. The site is funded by ads, but ads do not affect calculations.',
     footerPrivacy: 'Privacy',
     presetQ: 'Question', presetEmail: 'Email', presetArticle: 'Article',
     presetCode: 'Code', presetTranslate: 'Translate', presetAnalysis: 'Analysis',
-    updated: 'Updated', offline: 'offline',
     perDaySuffix: '/ day',
   }
 };
 
-// ============ STATE ============
 let MODELS = {};
 let USD_TO_RUB = 92;
 let currentLang = 'ru';
 let customModel = null;
 
 const state = {
-  model: 'gpt-4.1',
+  model: 'gpt-5.6-terra',
   inTokens: 1500,
   outTokens: 500,
   perDay: 100,
   budget: 10,
-  revModel: 'gpt-4.1',
+  revModel: 'gpt-5.6-terra',
   revSize: 2000,
   revRatio: 0.75,
 };
@@ -1400,10 +1035,7 @@ const PRESETS = [
   { key: 'presetAnalysis',  in: 8000, out: 500 },
 ];
 
-// ============ I18N ============
-function t(key) {
-  return (I18N[currentLang] && I18N[currentLang][key]) || key;
-}
+function t(key) { return (I18N[currentLang] && I18N[currentLang][key]) || key; }
 
 function applyLanguage(lang) {
   currentLang = lang;
@@ -1428,9 +1060,11 @@ function applyLanguage(lang) {
   updateReverse();
   updateText();
   updateCustomPanel();
+  if ($('perDayLabel')) {
+    $('perDayLabel').textContent = state.perDay.toLocaleString(locale()) + ' ' + t('perDaySuffix');
+  }
 }
 
-// ============ THEME ============
 function applyTheme(theme) {
   document.documentElement.setAttribute('data-theme', theme);
   localStorage.setItem('theme', theme);
@@ -1444,7 +1078,6 @@ function applyTheme(theme) {
   }
 }
 
-// ============ CUSTOM MODEL ============
 function loadCustomModel() {
   try {
     const saved = localStorage.getItem('customModel');
@@ -1466,11 +1099,9 @@ function saveCustomModel(inVal, outVal) {
 function updateCustomPanel() {
   const panel = document.getElementById('customPanel');
   if (!panel) return;
-  const isCustom = state.model === 'custom';
-  panel.classList.toggle('open', isCustom);
+  panel.classList.toggle('open', state.model === 'custom');
 }
 
-// ============ PRICES ============
 async function loadPrices() {
   try {
     const res = await fetch('prices.json?t=' + Date.now());
@@ -1484,7 +1115,6 @@ async function loadPrices() {
       'gpt-5.6-sol':      { name: 'GPT-5.6 Sol',      in: 4.00,  out: 20.00, color: '#10a37f' },
       'gpt-5.6-terra':    { name: 'GPT-5.6 Terra',    in: 2.00,  out: 12.00, color: '#10a37f' },
       'gpt-5.6-luna':     { name: 'GPT-5.6 Luna',     in: 0.20,  out: 1.20,  color: '#10a37f' },
-      'gpt-5.5':          { name: 'GPT-5.5',          in: 5.00,  out: 30.00, color: '#10a37f' },
       'claude-fable-5.1': { name: 'Claude Fable 5.1', in: 10.00, out: 50.00, color: '#d97757' },
       'claude-opus-5':    { name: 'Claude Opus 5',    in: 5.00,  out: 25.00, color: '#d97757' },
       'claude-sonnet-5':  { name: 'Claude Sonnet 5',  in: 3.00,  out: 15.00, color: '#d97757' },
@@ -1499,7 +1129,6 @@ async function loadPrices() {
   }
 }
 
-// ============ HELPERS ============
 const $ = id => document.getElementById(id);
 function locale() { return currentLang === 'ru' ? 'ru-RU' : 'en-US'; }
 function vibrate(ms) { if (navigator.vibrate) navigator.vibrate(ms); }
@@ -1513,12 +1142,10 @@ function fmtUsd(v) {
   return '$' + v.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 }
 function fmtRub(v) {
-  const rub = '₽';
-  const approx = '≈';
-  if (v < 0.01) return approx + ' ' + v.toFixed(4) + ' ' + rub;
-  if (v < 1) return approx + ' ' + v.toFixed(3) + ' ' + rub;
-  if (v < 100) return approx + ' ' + v.toFixed(2) + ' ' + rub;
-  return approx + ' ' + Math.round(v).toLocaleString(locale()) + ' ' + rub;
+  if (v < 0.01) return '≈ ' + v.toFixed(4) + ' ₽';
+  if (v < 1) return '≈ ' + v.toFixed(3) + ' ₽';
+  if (v < 100) return '≈ ' + v.toFixed(2) + ' ₽';
+  return '≈ ' + Math.round(v).toLocaleString(locale()) + ' ₽';
 }
 
 function tween(el, from, to, formatter, duration = 250) {
@@ -1526,10 +1153,10 @@ function tween(el, from, to, formatter, duration = 250) {
   const diff = to - from;
   if (Math.abs(diff) < 0.000001) { el.textContent = formatter(to); return; }
   function tick(now) {
-    const t = Math.min((now - start) / duration, 1);
-    const eased = 1 - Math.pow(1 - t, 3);
+    const tt = Math.min((now - start) / duration, 1);
+    const eased = 1 - Math.pow(1 - tt, 3);
     el.textContent = formatter(from + diff * eased);
-    if (t < 1) requestAnimationFrame(tick);
+    if (tt < 1) requestAnimationFrame(tick);
   }
   requestAnimationFrame(tick);
 }
@@ -1559,11 +1186,10 @@ function renderModels(gridId, activeKey) {
     grid.appendChild(chip);
   });
 
-  // Custom model chip
+  const cm = customModel || { in: 1.00, out: 3.00 };
   const customChip = document.createElement('div');
   customChip.className = 'model-chip custom' + (activeKey === 'custom' ? ' active' : '');
   customChip.dataset.modelKey = 'custom';
-  const cm = customModel || { in: 1.00, out: 3.00 };
   customChip.innerHTML = `
     <span class="model-name"><span class="model-dot" style="background:#888"></span>${t('customName')}</span>
     <span class="model-price">$${cm.in} / $${cm.out}</span>
@@ -1647,7 +1273,6 @@ function update() {
   $('monthlyUsd').innerHTML = fmtUsd(monthly) + ' <span>' + t('perMonth') + '</span>';
   $('totalTokensHint').textContent = (state.inTokens + state.outTokens).toLocaleString(locale()) + ' ' + t('tokensUnit');
   updateEveryday(monthly);
-
   lastTotal = total;
 }
 
@@ -1738,14 +1363,13 @@ function updateText() {
   $('wordCount').textContent = words.toLocaleString(locale());
   $('tokenCount').textContent = chars ? tokens.toLocaleString(locale()) : '0';
 
-  const m = MODELS['gpt-4.1'] || MODELS[Object.keys(MODELS)[0]];
+  const m = MODELS['gpt-5.6-terra'] || MODELS[Object.keys(MODELS)[0]];
   if (!m) return;
   const cost = (tokens / 1e6) * m.in;
   $('textCost').textContent = fmtUsd(cost);
   $('textCostRub').textContent = fmtRub(cost * USD_TO_RUB);
 }
 
-// ============ EVENTS ============
 document.querySelectorAll('.tab').forEach(tab => {
   tab.addEventListener('click', () => {
     vibrate(8);
@@ -1777,16 +1401,13 @@ $('themeToggle').addEventListener('click', () => {
   applyTheme(cur === 'dark' ? 'light' : 'dark');
 });
 
-// Custom model inputs
 $('customIn').addEventListener('input', (e) => {
   const v = parseFloat(e.target.value) || 0;
   const out = parseFloat($('customOut').value) || 0;
   saveCustomModel(v, out);
   renderModels('modelGrid', state.model);
   renderModels('modelGridRev', state.revModel);
-  update();
-  updateReverse();
-  updateCompare();
+  update(); updateReverse(); updateCompare();
 });
 $('customOut').addEventListener('input', (e) => {
   const v = parseFloat(e.target.value) || 0;
@@ -1794,32 +1415,23 @@ $('customOut').addEventListener('input', (e) => {
   saveCustomModel(inp, v);
   renderModels('modelGrid', state.model);
   renderModels('modelGridRev', state.revModel);
-  update();
-  updateReverse();
-  updateCompare();
+  update(); updateReverse(); updateCompare();
 });
 
-// ============ INIT ============
 async function init() {
-  // Theme
   const savedTheme = localStorage.getItem('theme');
   const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
   applyTheme(savedTheme || (prefersDark ? 'dark' : 'light'));
 
-  // Language
   const savedLang = localStorage.getItem('lang');
   const browserLang = (navigator.language || 'ru').slice(0, 2).toLowerCase();
   const lang = savedLang || (browserLang === 'ru' ? 'ru' : 'en');
 
-  // Custom model
   loadCustomModel();
-
-  // Prices
   await loadPrices();
 
-  // Models
   const keys = Object.keys(MODELS);
-  state.model = keys[0] || 'gpt-5.6-terra';
+  state.model = keys.includes('gpt-5.6-terra') ? 'gpt-5.6-terra' : (keys[0] || 'gpt-5.6-terra');
   state.revModel = state.model;
 
   renderModels('modelGrid', state.model);
@@ -1828,14 +1440,33 @@ async function init() {
   bindPair($('inTokens'),  $('inSlider'),  'inTokens');
   bindPair($('outTokens'), $('outSlider'), 'outTokens');
 
-  $('perDaySlider').addEventListener('input', (e) => {
-    state.perDay = parseInt(e.target.value);
+  function syncPerDay(value) {
+    state.perDay = Math.max(1, parseInt(value) || 1);
+    $('perDaySlider').value = Math.min(state.perDay, 5000);
+    $('perDayInput').value = state.perDay;
     $('perDayLabel').textContent = state.perDay.toLocaleString(locale()) + ' ' + t('perDaySuffix');
-    vibrate(4); update();
+  }
+  $('perDaySlider').addEventListener('input', (e) => {
+    syncPerDay(e.target.value); vibrate(4); update();
+  });
+  $('perDayInput').addEventListener('input', (e) => {
+    syncPerDay(e.target.value); update();
+  });
+
+  function syncRevSize(value) {
+    state.revSize = Math.max(200, parseInt(value) || 200);
+    $('revSizeSlider').value = Math.min(state.revSize, 20000);
+    $('revSizeInput').value = state.revSize;
+    updateReverse();
+  }
+  $('revSizeSlider').addEventListener('input', (e) => {
+    syncRevSize(e.target.value); vibrate(4);
+  });
+  $('revSizeInput').addEventListener('input', (e) => {
+    syncRevSize(e.target.value);
   });
 
   $('budget').addEventListener('input', (e) => { state.budget = parseFloat(e.target.value) || 0; updateReverse(); });
-  $('revSizeSlider').addEventListener('input', (e) => { state.revSize = parseInt(e.target.value); vibrate(4); updateReverse(); });
   $('cmpIn').addEventListener('input', updateCompare);
   $('cmpOut').addEventListener('input', updateCompare);
   $('textInput').addEventListener('input', updateText);
@@ -1859,7 +1490,6 @@ async function init() {
     } catch(e) {}
   });
 
-  // Apply language (also re-renders presets + updates everything)
   applyLanguage(lang);
 }
 
