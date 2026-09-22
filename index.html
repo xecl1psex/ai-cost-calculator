@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AI Cost Calculator — стоимость запросов к нейросетям</title>
-<meta name="description" content="Калькулятор стоимости запросов к GPT-4.1, Claude, Gemini и DeepSeek. Цены обновляются автоматически каждый день. Рассчитай бюджет на API.">
+<meta name="description" content="Калькулятор стоимости запросов к GPT-5.6, Claude, Gemini и DeepSeek. Цены обновляются автоматически каждый день. Рассчитай бюджет на API.">
 <meta name="theme-color" content="#fafafa" id="themeColor">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%235e6ad2'/><text x='50' y='68' font-family='system-ui' font-size='60' font-weight='700' text-anchor='middle' fill='white'>A</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -280,6 +280,30 @@
     color: var(--text-3);
     font-variant-numeric: tabular-nums;
   }
+  .model-chip.custom {
+    border-style: dashed;
+    border-color: var(--border-strong);
+  }
+  .model-chip.custom .model-name { color: var(--accent); }
+
+  /* ============ CUSTOM MODEL PANEL ============ */
+  .custom-panel {
+    margin-top: 10px;
+    padding: 12px;
+    background: var(--bg);
+    border: 1px dashed var(--border-strong);
+    border-radius: 8px;
+    display: none;
+  }
+  .custom-panel.open { display: block; }
+  .custom-panel .input-label { margin-bottom: 6px; }
+  .custom-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .custom-row .input-group { margin-bottom: 0; }
 
   /* ============ PRESETS ============ */
   .presets {
@@ -378,16 +402,16 @@
   input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    width: 16px;
-    height: 16px;
+    width: 20px;
+    height: 20px;
     border-radius: 50%;
     background: var(--panel);
     border: 2px solid var(--accent);
     cursor: pointer;
   }
   input[type="range"]::-moz-range-thumb {
-    width: 16px;
-    height: 16px;
+    width: 20px;
+    height: 20px;
     border-radius: 50%;
     background: var(--panel);
     border: 2px solid var(--accent);
@@ -825,7 +849,7 @@
 
   <section class="hero">
     <h1 data-i18n="heroTitle">Сколько стоит твой запрос к ИИ?</h1>
-    <p data-i18n="heroSub">Посчитай точную стоимость любого запроса к GPT-4.1, Claude, Gemini и DeepSeek. Цены обновляются автоматически каждый день.</p>
+    <p data-i18n="heroSub">Посчитай точную стоимость любого запроса к GPT-5.6, Claude, Gemini и DeepSeek. Цены обновляются автоматически каждый день.</p>
   </section>
 
   <nav class="tabs">
@@ -856,6 +880,31 @@
           <span data-i18n="modelLabel">Модель</span>
         </div>
         <div class="model-grid" id="modelGrid"></div>
+
+        <div class="custom-panel" id="customPanel">
+          <div class="input-label">
+            <span data-i18n="customTitle">Своя модель — цены за 1M токенов</span>
+          </div>
+          <div class="custom-row">
+            <div class="input-group">
+              <div class="input-label">
+                <span data-i18n="customIn">Вход</span>
+                <span class="label-unit">USD</span>
+              </div>
+              <input type="number" id="customIn" value="1.00" inputmode="decimal" step="0.01" min="0">
+            </div>
+            <div class="input-group">
+              <div class="input-label">
+                <span data-i18n="customOut">Выход</span>
+                <span class="label-unit">USD</span>
+              </div>
+              <input type="number" id="customOut" value="3.00" inputmode="decimal" step="0.01" min="0">
+            </div>
+          </div>
+          <div style="font-size:11px;color:var(--text-3);line-height:1.5;">
+            <span data-i18n="customHint">Введи свои цены — они сохранятся и будут использоваться во всех вкладках.</span>
+          </div>
+        </div>
       </div>
 
       <div class="card">
@@ -1076,7 +1125,7 @@
     <p data-i18n="sect1P2">Этот калькулятор помогает:</p>
     <ul>
       <li data-i18n="sect1L1">Понять, сколько стоит один запрос к разным моделям</li>
-      <li data-i18n="sect1L2">Сравнить цены GPT-4.1, Claude, Gemini и DeepSeek на одинаковой задаче</li>
+      <li data-i18n="sect1L2">Сравнить цены GPT-5.6, Claude, Gemini и DeepSeek на одинаковой задаче</li>
       <li data-i18n="sect1L3">Прикинуть бюджет на месяц или год при известной нагрузке</li>
       <li data-i18n="sect1L4">Выбрать модель, которая не разорит при больших объёмах</li>
     </ul>
@@ -1091,7 +1140,7 @@
     </div>
     <div class="use-case">
       <div class="use-case-title" data-i18n="case2Title">Генерация контента</div>
-      <div class="use-case-desc" data-i18n="case2Desc">50 статей в день по 3 000 токенов. Сравни GPT-4.1 и GPT-4o mini — разница в цене может быть в 13 раз.</div>
+      <div class="use-case-desc" data-i18n="case2Desc">50 статей в день по 3 000 токенов. Сравни GPT-5.6 и GPT-5.6 Luna — разница в цене может быть в 20 раз.</div>
     </div>
     <div class="use-case">
       <div class="use-case-title" data-i18n="case3Title">Разработка с ИИ</div>
@@ -1105,7 +1154,7 @@
     <h3 data-i18n="sect3Head">Что такое токен и почему выход дороже</h3>
     <p data-i18n="sect3P1">Токен — это часть слова. Модель разбивает текст на токены, чтобы обработать его. В среднем <code>1 000 токенов ≈ 750 слов</code> на английском или <code>≈ 500 слов</code> на русском.</p>
     <p data-i18n="sect3P2">Провайдеры берут разную цену за вход (твой промпт) и выход (ответ модели). Выход обычно в 3–4 раза дороже, потому что генерация идёт по одному токену за раз и требует больше вычислений.</p>
-    <p data-i18n="sect3P3">Пример: короткий вопрос ≈ 50 токенов промпта и ≈ 200 токенов ответа. На GPT-4.1 это стоит около <code>$0.0017</code>. На GPT-4o mini — в 13 раз дешевле.</p>
+    <p data-i18n="sect3P3">Пример: короткий вопрос ≈ 50 токенов промпта и ≈ 200 токенов ответа. На GPT-5.6 Terra это стоит около <code>$0.0026</code>. На GPT-5.6 Luna — в 10 раз дешевле.</p>
   </div>
 
   <!-- ============ CONTENT: Save money ============ -->
@@ -1143,8 +1192,12 @@
     <div class="faq-a" data-i18n="faq5A">Фиксированный курс, близкий к текущему. Он нужен только для ориентира — расчёты в долларах, потому что все провайдеры выставляют счёт в USD.</div>
   </div>
   <div class="faq-item">
-    <div class="faq-q"><span data-i18n="faq6Q">Это бесплатно?</span> <span class="faq-toggle">+</span></div>
-    <div class="faq-a" data-i18n="faq6A">Да, калькулятор полностью бесплатный. Сайт существует на рекламные доходы, но реклама не влияет на расчёты.</div>
+    <div class="faq-q"><span data-i18n="faq6Q">Можно ли добавить свою модель?</span> <span class="faq-toggle">+</span></div>
+    <div class="faq-a" data-i18n="faq6A">Да, в панели моделей есть кнопка «Своя модель». Введи цены за вход и выход — они сохранятся и будут использоваться во всех вкладках.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q"><span data-i18n="faq7Q">Это бесплатно?</span> <span class="faq-toggle">+</span></div>
+    <div class="faq-a" data-i18n="faq7A">Да, калькулятор полностью бесплатный. Сайт существует на рекламные доходы, но реклама не влияет на расчёты.</div>
   </div>
 
   <footer>
@@ -1157,7 +1210,7 @@
 const I18N = {
   ru: {
     heroTitle: 'Сколько стоит твой запрос к ИИ?',
-    heroSub: 'Посчитай точную стоимость любого запроса к GPT-4.1, Claude, Gemini и DeepSeek. Цены обновляются автоматически каждый день.',
+    heroSub: 'Посчитай точную стоимость любого запроса к GPT-5.6, Claude, Gemini и DeepSeek. Цены обновляются автоматически каждый день.',
     tabCalc: 'Расчёт', tabReverse: 'Реверс', tabCompare: 'Сравнить', tabText: 'Анализ',
     modelLabel: 'Модель', sizeLabel: 'Размер запроса',
     inputLabel: 'Промпт (вход)', outputLabel: 'Ответ (выход)',
@@ -1187,26 +1240,30 @@ const I18N = {
     pizza: 'Как {n} пицц в месяц',
     subs: 'Как подписка на 2 сервиса в месяц',
     serious: '{n} $ в месяц',
+    customTitle: 'Своя модель — цены за 1M токенов',
+    customIn: 'Вход', customOut: 'Выход',
+    customHint: 'Введи свои цены — они сохранятся и будут использоваться во всех вкладках.',
+    customName: 'Своя модель',
     sect1Title: 'Что это такое',
     sect1Head: 'Зачем нужен калькулятор стоимости ИИ',
     sect1P1: 'Каждый запрос к ChatGPT, Claude или Gemini стоит денег. Провайдеры берут плату за количество токенов — кусочков текста, на которые разбивается твой промпт и ответ модели. Если не считать это заранее, можно неожиданно получить счёт на десятки или сотни долларов в конце месяца.',
     sect1P2: 'Этот калькулятор помогает:',
     sect1L1: 'Понять, сколько стоит один запрос к разным моделям',
-    sect1L2: 'Сравнить цены GPT-4.1, Claude, Gemini и DeepSeek на одинаковой задаче',
+    sect1L2: 'Сравнить цены GPT-5.6, Claude, Gemini и DeepSeek на одинаковой задаче',
     sect1L3: 'Прикинуть бюджет на месяц или год при известной нагрузке',
     sect1L4: 'Выбрать модель, которая не разорит при больших объёмах',
     sect2Title: 'Примеры использования',
     case1Title: 'Чат-бот поддержки',
     case1Desc: '1 000 диалогов в день по 500 токенов. Считай цену за день, месяц и год, чтобы не превысить бюджет.',
     case2Title: 'Генерация контента',
-    case2Desc: '50 статей в день по 3 000 токенов. Сравни GPT-4.1 и GPT-4o mini — разница в цене может быть в 13 раз.',
+    case2Desc: '50 статей в день по 3 000 токенов. Сравни GPT-5.6 и GPT-5.6 Luna — разница в цене может быть в 20 раз.',
     case3Title: 'Разработка с ИИ',
     case3Desc: 'Code review, рефакторинг, генерация тестов. Считай цену на реальных задачах, а не по ощущениям.',
     sect3Title: 'Про токены',
     sect3Head: 'Что такое токен и почему выход дороже',
     sect3P1: 'Токен — это часть слова. Модель разбивает текст на токены, чтобы обработать его. В среднем 1 000 токенов ≈ 750 слов на английском или ≈ 500 слов на русском.',
     sect3P2: 'Провайдеры берут разную цену за вход (твой промпт) и выход (ответ модели). Выход обычно в 3–4 раза дороже, потому что генерация идёт по одному токену за раз и требует больше вычислений.',
-    sect3P3: 'Пример: короткий вопрос ≈ 50 токенов промпта и ≈ 200 токенов ответа. На GPT-4.1 это стоит около $0.0017. На GPT-4o mini — в 13 раз дешевле.',
+    sect3P3: 'Пример: короткий вопрос ≈ 50 токенов промпта и ≈ 200 токенов ответа. На GPT-5.6 Terra это стоит около $0.0026. На GPT-5.6 Luna — в 10 раз дешевле.',
     sect4Title: 'Как сэкономить',
     sect4Head: 'Три способа сократить расходы в 2–30 раз',
     sect4L1: 'Кэширование промптов — если ты отправляешь один и тот же контекст много раз, провайдер запомнит его и второй раз возьмёт в 10–30 раз дешевле.',
@@ -1223,8 +1280,10 @@ const I18N = {
     faq4A: 'Отдельно считаются входные и выходные токены по тарифам модели, затем суммируются. Выход всегда дороже входа.',
     faq5Q: 'Какой курс рубля используется?',
     faq5A: 'Фиксированный курс, близкий к текущему. Он нужен только для ориентира — расчёты в долларах.',
-    faq6Q: 'Это бесплатно?',
-    faq6A: 'Да, калькулятор полностью бесплатный. Сайт существует на рекламные доходы, но реклама не влияет на расчёты.',
+    faq6Q: 'Можно ли добавить свою модель?',
+    faq6A: 'Да, в панели моделей есть кнопка «Своя модель». Введи цены за вход и выход — они сохранятся и будут использоваться во всех вкладках.',
+    faq7Q: 'Это бесплатно?',
+    faq7A: 'Да, калькулятор полностью бесплатный. Сайт существует на рекламные доходы, но реклама не влияет на расчёты.',
     footerPrivacy: 'Privacy',
     presetQ: 'Вопрос', presetEmail: 'Письмо', presetArticle: 'Статья',
     presetCode: 'Код', presetTranslate: 'Перевод', presetAnalysis: 'Анализ',
@@ -1233,7 +1292,7 @@ const I18N = {
   },
   en: {
     heroTitle: 'How much does your AI request cost?',
-    heroSub: 'Calculate the exact cost of any request to GPT-4.1, Claude, Gemini and DeepSeek. Prices update automatically every day.',
+    heroSub: 'Calculate the exact cost of any request to GPT-5.6, Claude, Gemini and DeepSeek. Prices update automatically every day.',
     tabCalc: 'Calculate', tabReverse: 'Reverse', tabCompare: 'Compare', tabText: 'Analyze',
     modelLabel: 'Model', sizeLabel: 'Request size',
     inputLabel: 'Prompt (input)', outputLabel: 'Response (output)',
@@ -1250,7 +1309,7 @@ const I18N = {
     textLabel: 'Text',
     textPlaceholder: 'Paste text — I will count tokens and cost',
     chars: 'Characters', words: 'Words',
-    textCostLabel: 'Cost on GPT-4.1',
+    textCostLabel: 'Cost on GPT-5.6 Terra',
     textHint: 'For Russian text ≈ 2 chars per token, for English ≈ 4. Average used automatically.',
     year: 'Per year',
     reqPerDay: 'requests/day',
@@ -1263,26 +1322,30 @@ const I18N = {
     pizza: 'Like {n} pizzas per month',
     subs: 'Like a subscription to 2 services per month',
     serious: '${n} per month',
+    customTitle: 'Custom model — prices per 1M tokens',
+    customIn: 'Input', customOut: 'Output',
+    customHint: 'Enter your own prices — they will be saved and used across all tabs.',
+    customName: 'Custom model',
     sect1Title: 'What it is',
     sect1Head: 'Why you need an AI cost calculator',
     sect1P1: 'Every request to ChatGPT, Claude or Gemini costs money. Providers charge for tokens — chunks of text your prompt and the model response are split into. Without estimating it upfront, you can suddenly get a bill of tens or hundreds of dollars at the end of the month.',
     sect1P2: 'This calculator helps you:',
     sect1L1: 'Understand how much one request costs across different models',
-    sect1L2: 'Compare prices of GPT-4.1, Claude, Gemini and DeepSeek on the same task',
+    sect1L2: 'Compare prices of GPT-5.6, Claude, Gemini and DeepSeek on the same task',
     sect1L3: 'Estimate monthly or yearly budget for a known workload',
     sect1L4: 'Pick a model that will not break the bank at scale',
     sect2Title: 'Use cases',
     case1Title: 'Support chatbot',
     case1Desc: '1,000 conversations per day at 500 tokens each. Calculate daily, monthly and yearly cost to stay within budget.',
     case2Title: 'Content generation',
-    case2Desc: '50 articles per day at 3,000 tokens each. Compare GPT-4.1 and GPT-4o mini — the difference can be 13×.',
+    case2Desc: '50 articles per day at 3,000 tokens each. Compare GPT-5.6 and GPT-5.6 Luna — the difference can be 20×.',
     case3Title: 'AI-assisted development',
     case3Desc: 'Code review, refactoring, test generation. Calculate real cost instead of guessing.',
     sect3Title: 'About tokens',
     sect3Head: 'What is a token and why output is more expensive',
     sect3P1: 'A token is a piece of a word. The model splits text into tokens to process it. On average 1,000 tokens ≈ 750 English words or ≈ 500 Russian words.',
     sect3P2: 'Providers charge differently for input (your prompt) and output (model response). Output is usually 3–4× more expensive because generation happens one token at a time and requires more computation.',
-    sect3P3: 'Example: a short question ≈ 50 prompt tokens and ≈ 200 response tokens. On GPT-4.1 this costs about $0.0017. On GPT-4o mini — 13× cheaper.',
+    sect3P3: 'Example: a short question ≈ 50 prompt tokens and ≈ 200 response tokens. On GPT-5.6 Terra this costs about $0.0026. On GPT-5.6 Luna — 10× cheaper.',
     sect4Title: 'How to save',
     sect4Head: 'Three ways to cut costs 2–30×',
     sect4L1: 'Prompt caching — if you send the same context many times, the provider remembers it and charges 10–30× less the second time.',
@@ -1299,8 +1362,10 @@ const I18N = {
     faq4A: 'Input and output tokens are calculated separately at each model rate, then summed. Output is always more expensive.',
     faq5Q: 'Which exchange rate is used?',
     faq5A: 'A fixed rate close to current. It is only for reference — all calculations are in USD.',
-    faq6Q: 'Is it free?',
-    faq6A: 'Yes, the calculator is completely free. The site is funded by ads, but ads do not affect calculations.',
+    faq6Q: 'Can I add a custom model?',
+    faq6A: 'Yes, in the models panel there is a "Custom model" button. Enter input and output prices — they will be saved and used across all tabs.',
+    faq7Q: 'Is it free?',
+    faq7A: 'Yes, the calculator is completely free. The site is funded by ads, but ads do not affect calculations.',
     footerPrivacy: 'Privacy',
     presetQ: 'Question', presetEmail: 'Email', presetArticle: 'Article',
     presetCode: 'Code', presetTranslate: 'Translate', presetAnalysis: 'Analysis',
@@ -1313,6 +1378,7 @@ const I18N = {
 let MODELS = {};
 let USD_TO_RUB = 92;
 let currentLang = 'ru';
+let customModel = null;
 
 const state = {
   model: 'gpt-4.1',
@@ -1361,6 +1427,7 @@ function applyLanguage(lang) {
   update();
   updateReverse();
   updateText();
+  updateCustomPanel();
 }
 
 // ============ THEME ============
@@ -1377,6 +1444,32 @@ function applyTheme(theme) {
   }
 }
 
+// ============ CUSTOM MODEL ============
+function loadCustomModel() {
+  try {
+    const saved = localStorage.getItem('customModel');
+    if (saved) {
+      customModel = JSON.parse(saved);
+      const inEl = document.getElementById('customIn');
+      const outEl = document.getElementById('customOut');
+      if (inEl) inEl.value = customModel.in;
+      if (outEl) outEl.value = customModel.out;
+    }
+  } catch(e) {}
+}
+
+function saveCustomModel(inVal, outVal) {
+  customModel = { in: inVal, out: outVal, name: t('customName'), color: '#888' };
+  localStorage.setItem('customModel', JSON.stringify(customModel));
+}
+
+function updateCustomPanel() {
+  const panel = document.getElementById('customPanel');
+  if (!panel) return;
+  const isCustom = state.model === 'custom';
+  panel.classList.toggle('open', isCustom);
+}
+
 // ============ PRICES ============
 async function loadPrices() {
   try {
@@ -1388,12 +1481,20 @@ async function loadPrices() {
   } catch (err) {
     console.error('Fallback:', err);
     MODELS = {
-      'gpt-4.1':         { name: 'GPT-4.1',         in: 2.00, out: 8.00,  color: '#10a37f' },
-      'gpt-4o-mini':     { name: 'GPT-4o mini',     in: 0.15, out: 0.60,  color: '#10a37f' },
-      'claude-sonnet-5': { name: 'Claude Sonnet 5', in: 2.00, out: 10.00, color: '#d97757' },
-      'claude-opus-5':   { name: 'Claude Opus 5',   in: 5.00, out: 25.00, color: '#d97757' },
-      'gemini-2.5-pro':  { name: 'Gemini 2.5 Pro',  in: 1.25, out: 10.00, color: '#4285f4' },
-      'deepseek-v4':     { name: 'DeepSeek V4',     in: 0.22, out: 0.66,  color: '#5b6ee1' },
+      'gpt-5.6-sol':      { name: 'GPT-5.6 Sol',      in: 4.00,  out: 20.00, color: '#10a37f' },
+      'gpt-5.6-terra':    { name: 'GPT-5.6 Terra',    in: 2.00,  out: 12.00, color: '#10a37f' },
+      'gpt-5.6-luna':     { name: 'GPT-5.6 Luna',     in: 0.20,  out: 1.20,  color: '#10a37f' },
+      'gpt-5.5':          { name: 'GPT-5.5',          in: 5.00,  out: 30.00, color: '#10a37f' },
+      'claude-fable-5.1': { name: 'Claude Fable 5.1', in: 10.00, out: 50.00, color: '#d97757' },
+      'claude-opus-5':    { name: 'Claude Opus 5',    in: 5.00,  out: 25.00, color: '#d97757' },
+      'claude-sonnet-5':  { name: 'Claude Sonnet 5',  in: 3.00,  out: 15.00, color: '#d97757' },
+      'claude-haiku-4.5': { name: 'Claude Haiku 4.5', in: 1.00,  out: 5.00,  color: '#d97757' },
+      'gemini-3.1-pro':   { name: 'Gemini 3.1 Pro',   in: 2.00,  out: 12.00, color: '#4285f4' },
+      'gemini-3.5-flash': { name: 'Gemini 3.5 Flash', in: 1.50,  out: 9.00,  color: '#4285f4' },
+      'gemini-3.1-flash-lite': { name: 'Gemini 3.1 Flash-Lite', in: 0.25, out: 1.50, color: '#4285f4' },
+      'deepseek-v4-pro':  { name: 'DeepSeek V4 Pro',  in: 1.65,  out: 3.30,  color: '#5b6ee1' },
+      'deepseek-v4-flash': { name: 'DeepSeek V4 Flash', in: 0.20, out: 0.40, color: '#5b6ee1' },
+      'deepseek-v3.2':    { name: 'DeepSeek V3.2',    in: 0.57,  out: 1.71,  color: '#5b6ee1' },
     };
   }
 }
@@ -1412,8 +1513,8 @@ function fmtUsd(v) {
   return '$' + v.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 }
 function fmtRub(v) {
-  const rub = currentLang === 'ru' ? '₽' : '₽';
-  const approx = currentLang === 'ru' ? '≈' : '≈';
+  const rub = '₽';
+  const approx = '≈';
   if (v < 0.01) return approx + ' ' + v.toFixed(4) + ' ' + rub;
   if (v < 1) return approx + ' ' + v.toFixed(3) + ' ' + rub;
   if (v < 100) return approx + ' ' + v.toFixed(2) + ' ' + rub;
@@ -1433,13 +1534,18 @@ function tween(el, from, to, formatter, duration = 250) {
   requestAnimationFrame(tick);
 }
 
+function getActiveModel(key) {
+  if (key === 'custom') return customModel;
+  return MODELS[key];
+}
+
 function renderModels(gridId, activeKey) {
   const grid = $(gridId);
   if (!grid) return;
   grid.innerHTML = '';
   const keys = Object.keys(MODELS);
   if (keys.length === 0) return;
-  if (!keys.includes(activeKey)) activeKey = keys[0];
+  if (!keys.includes(activeKey) && activeKey !== 'custom') activeKey = keys[0];
 
   Object.entries(MODELS).forEach(([key, m]) => {
     const chip = document.createElement('div');
@@ -1452,6 +1558,18 @@ function renderModels(gridId, activeKey) {
     chip.addEventListener('click', () => handleModelClick(gridId, key));
     grid.appendChild(chip);
   });
+
+  // Custom model chip
+  const customChip = document.createElement('div');
+  customChip.className = 'model-chip custom' + (activeKey === 'custom' ? ' active' : '');
+  customChip.dataset.modelKey = 'custom';
+  const cm = customModel || { in: 1.00, out: 3.00 };
+  customChip.innerHTML = `
+    <span class="model-name"><span class="model-dot" style="background:#888"></span>${t('customName')}</span>
+    <span class="model-price">$${cm.in} / $${cm.out}</span>
+  `;
+  customChip.addEventListener('click', () => handleModelClick(gridId, 'custom'));
+  grid.appendChild(customChip);
 }
 
 function handleModelClick(gridId, key) {
@@ -1463,6 +1581,7 @@ function handleModelClick(gridId, key) {
   });
   if (gridId === 'modelGrid') {
     state.model = key;
+    updateCustomPanel();
     update();
   } else if (gridId === 'modelGridRev') {
     state.revModel = key;
@@ -1507,7 +1626,7 @@ function updateEveryday(monthly) {
 }
 
 function update() {
-  const m = MODELS[state.model];
+  const m = getActiveModel(state.model);
   if (!m) return;
   const costIn  = (state.inTokens  / 1e6) * m.in;
   const costOut = (state.outTokens / 1e6) * m.out;
@@ -1546,7 +1665,7 @@ function bindPair(numEl, sliderEl, key) {
 }
 
 function updateReverse() {
-  const m = MODELS[state.revModel];
+  const m = getActiveModel(state.revModel);
   if (!m) return;
   const inT = state.revSize * state.revRatio;
   const outT = state.revSize * (1 - state.revRatio);
@@ -1572,6 +1691,10 @@ function updateCompare() {
     const cost = (inT / 1e6) * m.in + (outT / 1e6) * m.out;
     return { key, m, cost };
   });
+  if (customModel) {
+    const cost = (inT / 1e6) * customModel.in + (outT / 1e6) * customModel.out;
+    rows.push({ key: 'custom', m: customModel, cost });
+  }
   rows.sort((a, b) => a.cost - b.cost);
 
   const tbody = document.querySelector('#cmpTable tbody');
@@ -1580,7 +1703,7 @@ function updateCompare() {
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td class="rank">${i + 1}</td>
-      <td><div class="model-cell"><span class="dot" style="background:${r.m.color}"></span>${r.m.name}</div></td>
+      <td><div class="model-cell"><span class="dot" style="background:${r.m.color || '#888'}"></span>${r.m.name}</div></td>
       <td class="${i === 0 ? 'best' : ''}">${fmtUsd(r.cost)}</td>
     `;
     tbody.appendChild(tr);
@@ -1615,7 +1738,7 @@ function updateText() {
   $('wordCount').textContent = words.toLocaleString(locale());
   $('tokenCount').textContent = chars ? tokens.toLocaleString(locale()) : '0';
 
-  const m = MODELS['gpt-4.1'];
+  const m = MODELS['gpt-4.1'] || MODELS[Object.keys(MODELS)[0]];
   if (!m) return;
   const cost = (tokens / 1e6) * m.in;
   $('textCost').textContent = fmtUsd(cost);
@@ -1654,6 +1777,28 @@ $('themeToggle').addEventListener('click', () => {
   applyTheme(cur === 'dark' ? 'light' : 'dark');
 });
 
+// Custom model inputs
+$('customIn').addEventListener('input', (e) => {
+  const v = parseFloat(e.target.value) || 0;
+  const out = parseFloat($('customOut').value) || 0;
+  saveCustomModel(v, out);
+  renderModels('modelGrid', state.model);
+  renderModels('modelGridRev', state.revModel);
+  update();
+  updateReverse();
+  updateCompare();
+});
+$('customOut').addEventListener('input', (e) => {
+  const v = parseFloat(e.target.value) || 0;
+  const inp = parseFloat($('customIn').value) || 0;
+  saveCustomModel(inp, v);
+  renderModels('modelGrid', state.model);
+  renderModels('modelGridRev', state.revModel);
+  update();
+  updateReverse();
+  updateCompare();
+});
+
 // ============ INIT ============
 async function init() {
   // Theme
@@ -1666,12 +1811,15 @@ async function init() {
   const browserLang = (navigator.language || 'ru').slice(0, 2).toLowerCase();
   const lang = savedLang || (browserLang === 'ru' ? 'ru' : 'en');
 
+  // Custom model
+  loadCustomModel();
+
   // Prices
   await loadPrices();
 
   // Models
   const keys = Object.keys(MODELS);
-  state.model = keys[0] || 'gpt-4.1';
+  state.model = keys[0] || 'gpt-5.6-terra';
   state.revModel = state.model;
 
   renderModels('modelGrid', state.model);
@@ -1693,7 +1841,7 @@ async function init() {
   $('textInput').addEventListener('input', updateText);
 
   $('copyBtn').addEventListener('click', async () => {
-    const m = MODELS[state.model];
+    const m = getActiveModel(state.model);
     if (!m) return;
     const costIn  = (state.inTokens  / 1e6) * m.in;
     const costOut = (state.outTokens / 1e6) * m.out;
